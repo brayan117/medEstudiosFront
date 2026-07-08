@@ -1,0 +1,202 @@
+<app-layout>
+  <h1>Médico</h1>
+  <p>Bienvenido al panel de médico de MedEstudios</p>
+
+  <!-- Stats Cards -->
+  <div class="stats-container">
+    <div class="stat-card stat-card--warning">
+      <div class="stat-card__icon">⏳</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ waitingStudies }}</div>
+        <div class="stat-card__label">Esperando Lectura</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--info">
+      <div class="stat-card__icon">🔄</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ inProgressStudies }}</div>
+        <div class="stat-card__label">En Proceso</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--success">
+      <div class="stat-card__icon">✅</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ completedStudies }}</div>
+        <div class="stat-card__label">Realizados</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--primary">
+      <div class="stat-card__icon">📅</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ completedThisMonth }}</div>
+        <div class="stat-card__label">Este Mes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Studies Queue Section -->
+  <div class="studies-section">
+    <div class="studies-main">
+      <div class="table-header">
+        <h2 class="table-title">Cola de Estudios</h2>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-container">
+        <div class="filter-group">
+          <label class="filter-label">Buscar por nombre:</label>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Nombre del paciente..." 
+            [(ngModel)]="filterName"
+          >
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Estado:</label>
+          <select class="filter-select" [(ngModel)]="filterStatus">
+            <option value="">Todos</option>
+            <option value="waiting">Esperando</option>
+            <option value="in_progress">En Proceso</option>
+            <option value="completed">Completado</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Tipo de estudio:</label>
+          <select class="filter-select" [(ngModel)]="filterStudyType">
+            <option value="">Todos</option>
+            <option value="Radiografía">Radiografía</option>
+            <option value="Tomografía">Tomografía</option>
+            <option value="Ultrasonido">Ultrasonido</option>
+            <option value="Resonancia">Resonancia</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Completados:</label>
+          <select class="filter-select" [(ngModel)]="filterCompleted">
+            <option value="">Todos</option>
+            <option value="yes">Sí</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table class="studies-table">
+          <thead>
+            <tr>
+              <th>Fecha/Hora</th>
+              <th>Paciente</th>
+              <th>Tipo Estudio</th>
+              <th>Nombre Estudio</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              *ngFor="let study of filteredStudies" 
+              [class.selected]="selectedStudy?.id === study.id"
+              (click)="selectStudy(study)"
+            >
+              <td>{{ study.dateTime }}</td>
+              <td>{{ study.patientName }}</td>
+              <td>{{ study.studyType }}</td>
+              <td>{{ study.studyName }}</td>
+              <td>
+                <span 
+                  class="badge" 
+                  [class.badge--warning]="study.status === 'waiting'"
+                  [class.badge--info]="study.status === 'in_progress'"
+                  [class.badge--success]="study.status === 'completed'"
+                >
+                  {{ getStatusLabel(study.status) }}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn--sm btn--primary" (click)="readStudy(study); $event.stopPropagation()">
+                  Leer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="filteredStudies.length === 0" class="no-data">
+          No se encontraron estudios
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Card -->
+    <div class="detail-card" *ngIf="selectedStudy">
+      <h3 class="detail-title">Detalles del Estudio</h3>
+      
+      <div class="detail-section">
+        <h4 class="detail-section-title">Información del Paciente</h4>
+        <div class="detail-row">
+          <span class="detail-label">Nombre:</span>
+          <span class="detail-value">{{ selectedStudy.patientName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Edad:</span>
+          <span class="detail-value">{{ selectedStudy.patientAge }} años</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Género:</span>
+          <span class="detail-value">{{ selectedStudy.patientGender }}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4 class="detail-section-title">Información del Estudio</h4>
+        <div class="detail-row">
+          <span class="detail-label">Tipo:</span>
+          <span class="detail-value">{{ selectedStudy.studyType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Nombre:</span>
+          <span class="detail-value">{{ selectedStudy.studyName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Fecha/Hora:</span>
+          <span class="detail-value">{{ selectedStudy.dateTime }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Estado:</span>
+          <span class="detail-value">{{ getStatusLabel(selectedStudy.status) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Prioridad:</span>
+          <span class="detail-value">{{ getPriorityLabel(selectedStudy.priority) }}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4 class="detail-section-title">Información Técnica</h4>
+        <div class="detail-row">
+          <span class="detail-label">Técnico:</span>
+          <span class="detail-value">{{ selectedStudy.technician }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Notas:</span>
+          <span class="detail-value">{{ selectedStudy.notes }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card detail-card--empty" *ngIf="!selectedStudy">
+      <div class="empty-state">
+        <span class="empty-icon">📋</span>
+        <p class="empty-text">Selecciona un estudio para ver los detalles</p>
+      </div>
+    </div>
+  </div>
+</app-layout>

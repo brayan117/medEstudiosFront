@@ -1,0 +1,103 @@
+:root {
+
+    /* ===========================
+       Colores principales
+    ============================ */
+
+    --color-primary: #1565C0;
+    --color-primary-hover: #0D47A1;
+
+    --color-secondary: #546E7A;
+
+    --color-success: #2E7D32;
+
+    --color-danger: #D32F2F;
+
+    --color-warning: #F9A825;
+
+    --color-info: #0288D1;
+
+
+    /* ===========================
+       Fondo
+    ============================ */
+
+    --background-color: #F4F7FA;
+
+    --surface-color: #FFFFFF;
+
+    --sidebar-color: #1F3A5F;
+
+    --navbar-color: #FFFFFF;
+
+
+    /* ===========================
+       Texto
+    ============================ */
+
+    --text-primary: #263238;
+
+    --text-secondary: #607D8B;
+
+    --text-light: #FFFFFF;
+
+
+    /* ===========================
+       Bordes
+    ============================ */
+
+    --border-color: #E0E0E0;
+
+    --border-radius: 8px;
+
+
+    /* ===========================
+       Sombras
+    ============================ */
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, .08);
+
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, .12);
+
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, .16);
+
+
+    /* ===========================
+       Transiciones
+    ============================ */
+
+    --transition: all .3s ease;
+
+
+    /* ===========================
+       Espaciados
+    ============================ */
+
+    --spacing-xs: .25rem;
+
+    --spacing-sm: .5rem;
+
+    --spacing-md: 1rem;
+
+    --spacing-lg: 1.5rem;
+
+    --spacing-xl: 2rem;
+
+
+    /* ===========================
+       Tipografía
+    ============================ */
+
+    --font-family: "Inter", sans-serif;
+
+    --font-size-xs: .75rem;
+
+    --font-size-sm: .875rem;
+
+    --font-size-md: 1rem;
+
+    --font-size-lg: 1.25rem;
+
+    --font-size-xl: 1.5rem;
+
+}

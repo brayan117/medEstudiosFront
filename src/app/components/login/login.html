@@ -1,0 +1,77 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2 class="login-title">Iniciar Sesión</h2>
+      <p class="login-subtitle">Bienvenido a MedEstudios</p>
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="username" class="form-label">Usuario</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="username" 
+          formControlName="username"
+          placeholder="admin"
+          [class.is-invalid]="submitted && f['username']?.errors"
+        >
+        <div *ngIf="submitted && f['username']?.errors" class="invalid-feedback">
+          <div *ngIf="f['username']?.errors?.['required']">El usuario es requerido</div>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <input 
+          type="password" 
+          class="form-control" 
+          id="password" 
+          formControlName="password"
+          placeholder="••••••••"
+          [class.is-invalid]="submitted && f['password']?.errors"
+        >
+        <div *ngIf="submitted && f['password']?.errors" class="invalid-feedback">
+          <div *ngIf="f['password']?.errors?.['required']">La contraseña es requerida</div>
+          <div *ngIf="f['password']?.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres</div>
+        </div>
+      </div>
+      
+      <div class="mb-3 form-check">
+        <input 
+          type="checkbox" 
+          class="form-check-input" 
+          id="rememberMe" 
+          formControlName="rememberMe"
+        >
+        <label class="form-check-label" for="rememberMe">
+          Recordarme
+        </label>
+      </div>
+      
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading">
+          <span *ngIf="!loading">Iniciar Sesión</span>
+          <span *ngIf="loading">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Cargando...
+          </span>
+        </button>
+      </div>
+      
+      <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+        {{ errorMessage }}
+      </div>
+    </form>
+    
+    <div class="login-footer">
+      <p class="text-center">
+        ¿No tienes una cuenta? 
+        <a href="#" class="register-link">Regístrate aquí</a>
+      </p>
+      <p class="text-center mt-2">
+        <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+      </p>
+    </div>
+  </div>
+</div>

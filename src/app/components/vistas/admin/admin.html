@@ -1,0 +1,130 @@
+<app-layout>
+  <h1>Dashboard</h1>
+  <p>Bienvenido al panel de admin de MedEstudios</p>
+
+  <!-- Stats Cards -->
+  <div class="stats-container">
+    <div class="stat-card stat-card--primary">
+      <div class="stat-card__icon">👥</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ totalUsers }}</div>
+        <div class="stat-card__label">Total Usuarios</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--success">
+      <div class="stat-card__icon">✅</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ activeUsers }}</div>
+        <div class="stat-card__label">Usuarios Activos</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--danger">
+      <div class="stat-card__icon">❌</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ inactiveUsers }}</div>
+        <div class="stat-card__label">Usuarios Inactivos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table Section -->
+  <div class="table-section">
+    <div class="table-header">
+      <h2 class="table-title">Lista de Usuarios</h2>
+      <button class="btn btn--primary" (click)="addUser()">
+        <span>➕</span>
+        <span>Agregar Usuario</span>
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-container">
+      <div class="filter-group">
+        <label class="filter-label">Buscar por nombre/email:</label>
+        <input 
+          type="text" 
+          class="filter-input" 
+          placeholder="Buscar..." 
+          [(ngModel)]="filterName"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Tipo de usuario:</label>
+        <select class="filter-select" [(ngModel)]="filterRole">
+          <option value="">Todos</option>
+          <option value="ADMIN">Admin</option>
+          <option value="MEDICO">Médico</option>
+          <option value="TECNICO">Técnico</option>
+          <option value="USUARIO">Usuario</option>
+          <option value="ADMINISTRATIVO">Administrativo</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Estado:</label>
+        <select class="filter-select" [(ngModel)]="filterStatus">
+          <option value="">Todos</option>
+          <option value="active">Activo</option>
+          <option value="inactive">Inactivo</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Fecha Creación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers">
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="badge badge--role">{{ user.role }}</span>
+            </td>
+            <td>
+              <span class="badge" [class.badge--success]="user.isActive" [class.badge--danger]="!user.isActive">
+                {{ user.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>{{ user.createdAt }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-icon btn-icon--edit" (click)="editUser(user)" title="Editar">
+                  ✏️
+                </button>
+                <button class="btn-icon btn-icon--delete" (click)="deleteUser(user)" title="Eliminar">
+                  🗑️
+                </button>
+                <button 
+                  class="btn-icon btn-icon--toggle" 
+                  (click)="toggleUserStatus(user)" 
+                  [title]="user.isActive ? 'Desactivar' : 'Activar'"
+                >
+                  {{ user.isActive ? '🔒' : '🔓' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="filteredUsers.length === 0" class="no-data">
+        No se encontraron usuarios
+      </div>
+    </div>
+  </div>
+</app-layout>
