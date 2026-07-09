@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { LoginResponseDTO } from '../../models/auth/LoginResponseDTO';
+import { LoginResponseDTO } from '../../models/interfaces/auth/LoginResponseDTO';
 
 @Injectable({
   providedIn: 'root'

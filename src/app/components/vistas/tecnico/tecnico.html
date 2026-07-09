@@ -1,4 +1,178 @@
 <app-layout>
   <h1>Técnico</h1>
   <p>Bienvenido al panel de técnico de MedEstudios</p>
+
+  <!-- Stats Cards -->
+  <div class="stats-container">
+    <div class="stat-card stat-card--primary">
+      <div class="stat-card__icon">📋</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ assignedStudies }}</div>
+        <div class="stat-card__label">Asignados</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--warning">
+      <div class="stat-card__icon">⏳</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ waitingStudies }}</div>
+        <div class="stat-card__label">En Espera</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-card--success">
+      <div class="stat-card__icon">✅</div>
+      <div class="stat-card__content">
+        <div class="stat-card__value">{{ completedStudies }}</div>
+        <div class="stat-card__label">Completados</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patients Section -->
+  <div class="patients-section">
+    <div class="patients-main">
+      <div class="table-header">
+        <h2 class="table-title">Lista de Pacientes</h2>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-container">
+        <div class="filter-group">
+          <label class="filter-label">Buscar por nombre:</label>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Nombre del paciente..." 
+            [(ngModel)]="filterName"
+          >
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Estado:</label>
+          <select class="filter-select" [(ngModel)]="filterStatus">
+            <option value="">Todos</option>
+            <option value="assigned">Asignado</option>
+            <option value="waiting">En Espera</option>
+            <option value="completed">Completado</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Tipo de estudio:</label>
+          <select class="filter-select" [(ngModel)]="filterStudyType">
+            <option value="">Todos</option>
+            <option value="Radiografía">Radiografía</option>
+            <option value="Tomografía">Tomografía</option>
+            <option value="Ultrasonido">Ultrasonido</option>
+            <option value="Resonancia">Resonancia</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha/Hora</th>
+              <th>Paciente</th>
+              <th>Tipo Estudio</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              *ngFor="let patient of filteredPatients" 
+              [class.selected]="selectedPatient?.id === patient.id"
+              (click)="selectPatient(patient)"
+            >
+              <td>{{ patient.dateTime }}</td>
+              <td>{{ patient.patientName }}</td>
+              <td>{{ patient.studyType }}</td>
+              <td>
+                <span 
+                  class="badge" 
+                  [class.badge--primary]="patient.status === 'assigned'"
+                  [class.badge--warning]="patient.status === 'waiting'"
+                  [class.badge--success]="patient.status === 'completed'"
+                >
+                  {{ getStatusLabel(patient.status) }}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn--sm btn--primary" (click)="prepareStudy(patient); $event.stopPropagation()">
+                  Preparar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="filteredPatients.length === 0" class="no-data">
+          No se encontraron pacientes
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Card -->
+    <div class="detail-card" *ngIf="selectedPatient">
+      <h3 class="detail-title">Información del Paciente</h3>
+      
+      <div class="detail-section">
+        <h4 class="detail-section-title">Datos del Paciente</h4>
+        <div class="detail-row">
+          <span class="detail-label">Nombre:</span>
+          <span class="detail-value">{{ selectedPatient.patientName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Edad:</span>
+          <span class="detail-value">{{ selectedPatient.patientAge }} años</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Género:</span>
+          <span class="detail-value">{{ selectedPatient.patientGender }}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4 class="detail-section-title">Información del Estudio</h4>
+        <div class="detail-row">
+          <span class="detail-label">Tipo:</span>
+          <span class="detail-value">{{ selectedPatient.studyType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Fecha/Hora:</span>
+          <span class="detail-value">{{ selectedPatient.dateTime }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Estado:</span>
+          <span class="detail-value">{{ getStatusLabel(selectedPatient.status) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Prioridad:</span>
+          <span class="detail-value">{{ getPriorityLabel(selectedPatient.priority) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Sala:</span>
+          <span class="detail-value">{{ selectedPatient.room }}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4 class="detail-section-title">Notas</h4>
+        <div class="detail-row">
+          <span class="detail-value">{{ selectedPatient.notes || 'Sin notas' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card detail-card--empty" *ngIf="!selectedPatient">
+      <div class="empty-state">
+        <span class="empty-icon">👤</span>
+        <p class="empty-text">Selecciona un paciente para ver los detalles</p>
+      </div>
+    </div>
+  </div>
 </app-layout>

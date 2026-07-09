@@ -1,8 +1,8 @@
 import { Injectable, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../../environments/env";
-import { LoginRequestDTO } from "../../models/auth/LoginRequestDTO";
-import { LoginResponseDTO } from "../../models/auth/LoginResponseDTO";
+import { LoginRequestDTO } from "../../models/interfaces/auth/LoginRequestDTO";
+import { LoginResponseDTO } from "../../models/interfaces/auth/LoginResponseDTO";
 import { Observable } from "rxjs";
 
 @Injectable({

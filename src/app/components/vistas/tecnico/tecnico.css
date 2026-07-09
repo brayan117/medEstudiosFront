@@ -1,0 +1,22 @@
+@import '../../../shared/styles/shared.css';
+
+/* Tecnico-specific layout */
+.patients-section {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: var(--spacing-lg);
+}
+
+.patients-main {
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .patients-section {
+    grid-template-columns: 1fr;
+  }
+}

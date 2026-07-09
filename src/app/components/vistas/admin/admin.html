@@ -31,7 +31,7 @@
 
   <!-- Users Table Section -->
   <div class="table-section">
-    <div class="table-header">
+    <div class="table-header table-header--with-actions">
       <h2 class="table-title">Lista de Usuarios</h2>
       <button class="btn btn--primary" (click)="addUser()">
         <span>➕</span>
@@ -42,11 +42,11 @@
     <!-- Filters -->
     <div class="filters-container">
       <div class="filter-group">
-        <label class="filter-label">Buscar por nombre/email:</label>
+        <label class="filter-label">Buscar por nombre:</label>
         <input 
           type="text" 
           class="filter-input" 
-          placeholder="Buscar..." 
+          placeholder="Nombre de usuario..." 
           [(ngModel)]="filterName"
         >
       </div>
@@ -73,17 +73,37 @@
       </div>
     </div>
 
+    <!-- Debug Info -->
+    <div class="no-data" style="font-size: 12px; color: #666;">
+      Debug: loading={{ loading }}, users={{ users.length }}, error={{ error || 'null' }}
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="no-data" style="color: var(--color-success); background: rgba(46, 125, 50, 0.1); padding: var(--spacing-md); border-radius: var(--border-radius);">
+      ✅ {{ successMessage }}
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="no-data">
+      Cargando usuarios...
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="no-data" style="color: var(--color-danger);">
+      {{ error }}
+    </div>
+
     <!-- Table -->
-    <div class="table-wrapper">
-      <table class="users-table">
+    <div class="table-wrapper" *ngIf="!loading && !error">
+      <table class="data-table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Usuario</th>
-            <th>Email</th>
             <th>Rol</th>
             <th>Estado</th>
             <th>Fecha Creación</th>
+            <th>Último Login</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -91,16 +111,16 @@
           <tr *ngFor="let user of filteredUsers">
             <td>{{ user.id }}</td>
             <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
             <td>
-              <span class="badge badge--role">{{ user.role }}</span>
+              <span class="badge badge--role">{{ user.tipoUsuario }}</span>
             </td>
             <td>
-              <span class="badge" [class.badge--success]="user.isActive" [class.badge--danger]="!user.isActive">
-                {{ user.isActive ? 'Activo' : 'Inactivo' }}
+              <span class="badge" [class.badge--success]="user.estado" [class.badge--danger]="!user.estado">
+                {{ user.estado ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
-            <td>{{ user.createdAt }}</td>
+            <td>{{ formatDate(user.fechaCreacion) }}</td>
+            <td>{{ formatDate(user.ultimoLogin) }}</td>
             <td>
               <div class="action-buttons">
                 <button class="btn-icon btn-icon--edit" (click)="editUser(user)" title="Editar">
@@ -112,9 +132,9 @@
                 <button 
                   class="btn-icon btn-icon--toggle" 
                   (click)="toggleUserStatus(user)" 
-                  [title]="user.isActive ? 'Desactivar' : 'Activar'"
+                  [title]="user.estado ? 'Desactivar' : 'Activar'"
                 >
-                  {{ user.isActive ? '🔒' : '🔓' }}
+                  {{ user.estado ? '🔒' : '🔓' }}
                 </button>
               </div>
             </td>
