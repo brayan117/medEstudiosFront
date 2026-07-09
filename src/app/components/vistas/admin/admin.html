@@ -147,4 +147,79 @@
       </div>
     </div>
   </div>
+
+  <!-- Add User Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Agregar Usuario</h2>
+        <button class="modal-close" (click)="closeModal()">&times;</button>
+      </div>
+
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Nombre de usuario</label>
+            <input
+              type="text"
+              class="form-control"
+              [class.is-invalid]="submitted && f['username'].errors"
+              formControlName="username"
+              placeholder="Ingrese el nombre de usuario"
+            >
+            <div class="invalid-feedback" *ngIf="submitted && f['username'].errors">
+              El nombre de usuario es requerido
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              [class.is-invalid]="submitted && f['password_hash'].errors"
+              formControlName="password_hash"
+              placeholder="Ingrese la contraseña"
+            >
+            <div class="invalid-feedback" *ngIf="submitted && f['password_hash'].errors">
+              <span *ngIf="f['password_hash'].hasError('required')">La contraseña es requerida</span>
+              <span *ngIf="f['password_hash'].hasError('minlength')">La contraseña debe tener al menos 6 caracteres</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fecha de creación</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="fecha_creacion"
+              readonly
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo de usuario</label>
+            <select
+              class="form-control"
+              [class.is-invalid]="submitted && f['tipoUsuarioId'].errors"
+              formControlName="tipoUsuarioId"
+            >
+              <option value="">Seleccione un tipo...</option>
+              <option *ngFor="let role of roles | keyvalue" [value]="role.value">
+                {{ role.key }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="submitted && f['tipoUsuarioId'].errors">
+              El tipo de usuario es requerido
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn--secondary" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn--primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </app-layout>

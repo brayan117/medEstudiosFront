@@ -1,19 +1,28 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Layout } from '../../../shared/layout/layout';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { usuarioDTO } from '../../../models/interfaces/usuario/usuarioDTO.interface';
 import { usuarioService } from '../../../services/usuario/usuario.service';
 import { requestActualizarEstadoDTO } from '../../../models/interfaces/usuario/requestActualizarEstadoDTO.interface';
+import { ROLES } from '../../../shared/constantes/roles.constants';
+import { crearUsuarioDTO } from '../../../models/interfaces/usuario/crearUsuarioDTO.interface';
 @Component({
   selector: 'app-admin',
-  imports: [Layout, CommonModule, FormsModule],
+  imports: [Layout, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
   private usuarioService = inject(usuarioService);
   private cdr = inject(ChangeDetectorRef);
+  private fb = inject(FormBuilder);
+
+  showModal = false;
+  submitted = false;
+  userForm!: FormGroup;
+  roles = ROLES;
 
   users: usuarioDTO[] = [];
   loading = false;
@@ -40,6 +49,25 @@ export class Admin implements OnInit {
 
   ngOnInit() {
     this.loadUsers();
+    this.initForm();
+  }
+
+  initForm() {
+    this.userForm = this.fb.group({
+      username: ['', Validators.required],
+      password_hash: ['', [Validators.required, Validators.minLength(6)]],
+      fecha_creacion: [{value: this.getTodayDate(), disabled: true}, Validators.required],
+      tipoUsuarioId: [this.roles.USUARIO, Validators.required],
+    });
+  }
+
+  getTodayDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }
+
+  get f() {
+    return this.userForm.controls;
   }
 
   loadUsers() {
@@ -76,7 +104,49 @@ export class Admin implements OnInit {
   }
 
   addUser() {
-    console.log('Agregar usuario');
+    this.submitted = false;
+    this.initForm();
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.submitted = false;
+  }
+
+  onSubmit() {
+    this.submitted = true;
+    if (this.userForm.invalid) return;
+
+    const formValue = this.userForm.getRawValue();
+    const dto: crearUsuarioDTO = {
+      username: formValue.username,
+      password_hash: formValue.password_hash,
+      fecha_creacion: new Date(),
+      ultimo_login: new Date(),
+      estado: true,
+      tipoUsuarioId: Number(formValue.tipoUsuarioId),
+    };
+
+    this.usuarioService.crearUsuario(dto).subscribe({
+      next: (response) => {
+        this.showModal = false;
+        this.submitted = false;
+        this.successMessage = `Usuario ${response.username} creado correctamente`;
+        this.error = null;
+        this.loadUsers();
+        setTimeout(() => {
+          this.successMessage = null;
+          this.cdr.detectChanges();
+        }, 3000);
+      },
+      error: (err) => {
+        console.error('Error creating user:', err);
+        this.error = 'Error al crear usuario';
+        this.successMessage = null;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   editUser(user: usuarioDTO) {
@@ -122,8 +192,4 @@ export class Admin implements OnInit {
       }
     });
   }
-
- 
 }
-
-
