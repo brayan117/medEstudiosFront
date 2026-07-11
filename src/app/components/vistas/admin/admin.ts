@@ -154,7 +154,26 @@ export class Admin implements OnInit {
   }
 
   deleteUser(user: usuarioDTO) {
-    console.log('Eliminar usuario:', user);
+    if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.username}? Esta acción no se puede deshacer.`)) {
+      this.usuarioService.eliminarUsuario(user.id).subscribe({
+        next: (response) => {
+          console.log('Usuario eliminado:', response);
+          this.successMessage = `Usuario ${user.username} eliminado correctamente`;
+          this.error = null;
+          this.loadUsers();
+          setTimeout(() => {
+            this.successMessage = null;
+            this.cdr.detectChanges();
+          }, 3000);
+        },
+        error: (err) => {
+          console.error('Error eliminando usuario:', err);
+          this.error = 'Error al eliminar el usuario';
+          this.successMessage = null;
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   toggleUserStatus(user: usuarioDTO) {
@@ -187,6 +206,27 @@ export class Admin implements OnInit {
       error: (err) => {
         console.error('Error actualizando estado:', err);
         this.error = 'Error al actualizar el estado del usuario';
+        this.successMessage = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarUsuario(user: usuarioDTO) {
+    this.usuarioService.eliminarUsuario(user.id).subscribe({
+      next: (response) => {
+        console.log('Usuario eliminado:', response);
+        this.successMessage = `Usuario ${user.username} eliminado correctamente`;
+        this.error = null;
+        this.loadUsers();
+        setTimeout(() => {
+          this.successMessage = null;
+          this.cdr.detectChanges();
+        }, 3000);
+      },
+      error: (err) => {
+        console.error('Error eliminando usuario:', err);
+        this.error = 'Error al eliminar usuario';
         this.successMessage = null;
         this.cdr.detectChanges();
       }

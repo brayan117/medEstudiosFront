@@ -1,0 +1,162 @@
+<app-layout>
+  <h1>Auditoría</h1>
+  <p>Registro de actividades del sistema</p>
+
+  <!-- Filters Section -->
+  <div class="table-section">
+    <div class="table-header">
+      <h2 class="table-title">Filtros de Búsqueda</h2>
+      <button class="btn btn--primary" (click)="generarReporte()">
+        <span>📄</span>
+        <span>Generar Reporte</span>
+      </button>
+    </div>
+
+    <div class="filters-container">
+      <div class="filter-group">
+        <label class="filter-label">Usuario:</label>
+        <input 
+          type="text" 
+          class="filter-input" 
+          placeholder="Buscar usuario..." 
+          [(ngModel)]="searchUsuario"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Acción:</label>
+        <input 
+          type="text" 
+          class="filter-input" 
+          placeholder="Buscar acción..." 
+          [(ngModel)]="searchAccion"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Detalle:</label>
+        <input 
+          type="text" 
+          class="filter-input" 
+          placeholder="Buscar detalle..." 
+          [(ngModel)]="searchDetalle"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Periodo:</label>
+        <select class="filter-select" [(ngModel)]="timeFilter" (change)="loadByTimeFilter(timeFilter)">
+          <option value="">Todos</option>
+          <option value="hoy">Hoy</option>
+          <option value="semana">Última Semana</option>
+          <option value="mes">Último Mes</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="no-data" style="color: var(--color-success); background: rgba(46, 125, 50, 0.1); padding: var(--spacing-md); border-radius: var(--border-radius);">
+      ✅ {{ successMessage }}
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="no-data" style="color: var(--color-danger);">
+      {{ error }}
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="no-data">
+      Cargando auditorías...
+    </div>
+
+    <!-- Table and Detail Card Layout -->
+    <div class="auditoria-section" *ngIf="!loading && !error">
+      <div class="auditoria-main">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Acción</th>
+                <th>Detalle</th>
+                <th>IP</th>
+                <th>User Agent</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr 
+                *ngFor="let audit of filteredAuditorias" 
+                (click)="selectAuditoria(audit)"
+                [class.selected-row]="selectedAuditoria?.id === audit.id"
+              >
+                <td>{{ audit.usuario }}</td>
+                <td>{{ audit.accion }}</td>
+                <td>{{ audit.detalle }}</td>
+                <td>{{ audit.ip }}</td>
+                <td>{{ audit.useragent }}</td>
+                <td>{{ formatDate(audit.fecha) }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="filteredAuditorias.length === 0" class="no-data">
+            No se encontraron registros de auditoría
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Card -->
+      <div class="auditoria-detail" *ngIf="selectedAuditoria">
+        <div class="detail-card">
+          <div class="detail-card__header">
+            <h3 class="detail-card__title">Detalles del Registro</h3>
+            <button class="btn-icon" (click)="selectedAuditoria = null" title="Cerrar">✕</button>
+          </div>
+
+          <div class="detail-card__content">
+            <div class="detail-card__section">
+              <h4 class="detail-card__section-title">Información General</h4>
+              <div class="detail-card__field">
+                <span class="detail-card__label">ID:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.id }}</span>
+              </div>
+              <div class="detail-card__field">
+                <span class="detail-card__label">Usuario:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.usuario }}</span>
+              </div>
+              <div class="detail-card__field">
+                <span class="detail-card__label">Fecha:</span>
+                <span class="detail-card__value">{{ formatDate(selectedAuditoria.fecha) }}</span>
+              </div>
+            </div>
+
+            <div class="detail-card__section">
+              <h4 class="detail-card__section-title">Acción Realizada</h4>
+              <div class="detail-card__field">
+                <span class="detail-card__label">Acción:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.accion }}</span>
+              </div>
+              <div class="detail-card__field">
+                <span class="detail-card__label">Detalle:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.detalle }}</span>
+              </div>
+            </div>
+
+            <div class="detail-card__section">
+              <h4 class="detail-card__section-title">Información Técnica</h4>
+              <div class="detail-card__field">
+                <span class="detail-card__label">IP:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.ip }}</span>
+              </div>
+              <div class="detail-card__field">
+                <span class="detail-card__label">User Agent:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.useragent }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

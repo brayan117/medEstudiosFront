@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -9,6 +10,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/vistas/admin/admin').then(m => m.Admin),
     canActivate: [authGuard]
 
+  },
+  {
+    path: 'admin/auditoria',
+    loadComponent: () => import('./components/vistas/auditoria/auditoria').then(m => m.Auditoria),
+    canActivate: [adminGuard]
   },
   {
     path: 'medico',

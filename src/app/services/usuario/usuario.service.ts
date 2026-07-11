@@ -7,6 +7,7 @@ import { responseActualizarEstadoDTO } from "../../models/interfaces/usuario/res
 import { requestActualizarEstadoDTO } from "../../models/interfaces/usuario/requestActualizarEstadoDTO.interface";
 import { crearUsuarioDTO } from "../../models/interfaces/usuario/crearUsuarioDTO.interface";
 import { crearUsuarioResponseDTO } from "../../models/interfaces/usuario/crearUsuarioResponseDTO.interface";
+import { responseDTO } from "../../models/interfaces/responseDTO.interface";
 
 @Injectable({
     providedIn: 'root'
@@ -26,5 +27,9 @@ export class usuarioService {
   
     crearUsuario(dto: crearUsuarioDTO): Observable<crearUsuarioResponseDTO> {
         return this.http.post<crearUsuarioResponseDTO>(this.apiUrl, dto);
+    }
+
+    eliminarUsuario(id:number):Observable<responseDTO> {
+        return this.http.delete<responseDTO>(`${this.apiUrl}/${id}`);
     }
 } 

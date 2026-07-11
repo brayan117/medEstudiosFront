@@ -1,0 +1,43 @@
+@import '../../../shared/styles/shared.css';
+
+.auditoria-section {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: var(--spacing-lg);
+}
+
+.auditoria-main {
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.auditoria-detail {
+  position: sticky;
+  top: var(--spacing-lg);
+}
+
+.selected-row {
+  background-color: rgba(21, 101, 192, 0.1);
+  cursor: pointer;
+}
+
+.data-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background-color: rgba(21, 101, 192, 0.05);
+}
+
+@media (max-width: 1200px) {
+  .auditoria-section {
+    grid-template-columns: 1fr;
+  }
+
+  .auditoria-detail {
+    position: static;
+  }
+}

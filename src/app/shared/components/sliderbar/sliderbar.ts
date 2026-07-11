@@ -20,7 +20,7 @@ export class Sliderbar {
     const roleMenus: { [key: string]: any[] } = {
       'ADMIN': [
         { icon: '🏠', label: 'Dashboard', path: '/admin' },
-        { icon: '📊', label: 'Reportes', path: '/admin/reports' },
+        { icon: '📊', label: 'Auditoria', path: '/admin/auditoria' },
         { icon: '⚙️', label: 'Configuración', path: '/admin/settings' }
       ],
       'MEDICO': [
