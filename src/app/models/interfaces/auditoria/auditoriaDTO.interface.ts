@@ -1,9 +1,13 @@
 export interface auditoriaDTO {
     id: number;
-    usuario: string;
+    usuario_id: number;
     accion: string;
-    detalle: string;
-    ip: string;
-    useragent: string;
+    tabla_afectada: string;
+    registro_id: number;
+    descripcion: string;
     fecha: string;
+    ip: string;
+    user_agent: string;
+    username: string;
+    rol: string;
 }

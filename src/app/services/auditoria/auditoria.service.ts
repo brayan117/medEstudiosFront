@@ -9,18 +9,11 @@ import { auditoriaDTO } from "../../models/interfaces/auditoria/auditoriaDTO.int
 })
 export class auditoriaService {
 
-    private readonly apiUrl = environment.apiUrl + '/auditoria';
+    private readonly apiUrl = environment.apiUrl + '/auditorias';
     constructor(private http: HttpClient) { }
 
     obtenerAuditorias(): Observable<auditoriaDTO[]> {
         return this.http.get<auditoriaDTO[]>(this.apiUrl);
     }
 
-    obtenerAuditoriasPorFiltro(filtro: string): Observable<auditoriaDTO[]> {
-        return this.http.get<auditoriaDTO[]>(`${this.apiUrl}/filtro/${filtro}`);
-    }
-
-    generarReporte(): Observable<any> {
-        return this.http.get(`${this.apiUrl}/reporte`, { responseType: 'blob' });
-    }
 }

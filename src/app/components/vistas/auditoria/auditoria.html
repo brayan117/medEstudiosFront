@@ -6,10 +6,6 @@
   <div class="table-section">
     <div class="table-header">
       <h2 class="table-title">Filtros de Búsqueda</h2>
-      <button class="btn btn--primary" (click)="generarReporte()">
-        <span>📄</span>
-        <span>Generar Reporte</span>
-      </button>
     </div>
 
     <div class="filters-container">
@@ -34,18 +30,18 @@
       </div>
 
       <div class="filter-group">
-        <label class="filter-label">Detalle:</label>
+        <label class="filter-label">Descripción:</label>
         <input 
           type="text" 
           class="filter-input" 
-          placeholder="Buscar detalle..." 
-          [(ngModel)]="searchDetalle"
+          placeholder="Buscar descripción..." 
+          [(ngModel)]="searchDescripcion"
         >
       </div>
 
       <div class="filter-group">
         <label class="filter-label">Periodo:</label>
-        <select class="filter-select" [(ngModel)]="timeFilter" (change)="loadByTimeFilter(timeFilter)">
+        <select class="filter-select" [(ngModel)]="timeFilter">
           <option value="">Todos</option>
           <option value="hoy">Hoy</option>
           <option value="semana">Última Semana</option>
@@ -78,7 +74,7 @@
               <tr>
                 <th>Usuario</th>
                 <th>Acción</th>
-                <th>Detalle</th>
+                <th>Descripción</th>
                 <th>IP</th>
                 <th>User Agent</th>
                 <th>Fecha</th>
@@ -90,11 +86,11 @@
                 (click)="selectAuditoria(audit)"
                 [class.selected-row]="selectedAuditoria?.id === audit.id"
               >
-                <td>{{ audit.usuario }}</td>
+                <td>{{ audit.username }}</td>
                 <td>{{ audit.accion }}</td>
-                <td>{{ audit.detalle }}</td>
+                <td>{{ audit.descripcion }}</td>
                 <td>{{ audit.ip }}</td>
-                <td>{{ audit.useragent }}</td>
+                <td>{{ audit.user_agent }}</td>
                 <td>{{ formatDate(audit.fecha) }}</td>
               </tr>
             </tbody>
@@ -123,7 +119,11 @@
               </div>
               <div class="detail-card__field">
                 <span class="detail-card__label">Usuario:</span>
-                <span class="detail-card__value">{{ selectedAuditoria.usuario }}</span>
+                <span class="detail-card__value">{{ selectedAuditoria.username }}</span>
+              </div>
+              <div class="detail-card__field">
+                <span class="detail-card__label">Rol:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.rol }}</span>
               </div>
               <div class="detail-card__field">
                 <span class="detail-card__label">Fecha:</span>
@@ -138,8 +138,16 @@
                 <span class="detail-card__value">{{ selectedAuditoria.accion }}</span>
               </div>
               <div class="detail-card__field">
-                <span class="detail-card__label">Detalle:</span>
-                <span class="detail-card__value">{{ selectedAuditoria.detalle }}</span>
+                <span class="detail-card__label">Descripción:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.descripcion }}</span>
+              </div>
+              <div class="detail-card__field">
+                <span class="detail-card__label">Tabla Afectada:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.tabla_afectada }}</span>
+              </div>
+              <div class="detail-card__field">
+                <span class="detail-card__label">Registro ID:</span>
+                <span class="detail-card__value">{{ selectedAuditoria.registro_id }}</span>
               </div>
             </div>
 
@@ -151,7 +159,7 @@
               </div>
               <div class="detail-card__field">
                 <span class="detail-card__label">User Agent:</span>
-                <span class="detail-card__value">{{ selectedAuditoria.useragent }}</span>
+                <span class="detail-card__value">{{ selectedAuditoria.user_agent }}</span>
               </div>
             </div>
           </div>
