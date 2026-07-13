@@ -30,6 +30,16 @@
       </div>
 
       <div class="filter-group">
+        <label class="filter-label">Tabla Afectada:</label>
+        <input 
+          type="text" 
+          class="filter-input" 
+          placeholder="Buscar tabla..." 
+          [(ngModel)]="searchTabla"
+        >
+      </div>
+
+      <div class="filter-group">
         <label class="filter-label">Descripción:</label>
         <input 
           type="text" 
@@ -40,13 +50,26 @@
       </div>
 
       <div class="filter-group">
-        <label class="filter-label">Periodo:</label>
-        <select class="filter-select" [(ngModel)]="timeFilter">
-          <option value="">Todos</option>
-          <option value="hoy">Hoy</option>
-          <option value="semana">Última Semana</option>
-          <option value="mes">Último Mes</option>
-        </select>
+        <label class="filter-label">Fecha Inicio:</label>
+        <input 
+          type="date" 
+          class="filter-input" 
+          [(ngModel)]="fechaInicio"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Fecha Fin:</label>
+        <input 
+          type="date" 
+          class="filter-input" 
+          [(ngModel)]="fechaFin"
+        >
+      </div>
+
+      <div class="filter-group">
+        <button class="btn btn--primary" (click)="applyFilters()">Filtrar</button>
+        <button class="btn btn--secondary" (click)="clearFilters()">Limpiar</button>
       </div>
     </div>
 
@@ -72,12 +95,24 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Usuario</th>
-                <th>Acción</th>
-                <th>Descripción</th>
+                <th (click)="toggleSort('username')" class="sortable">
+                  Usuario
+                  <span *ngIf="sortCampo === 'username'">{{ sortDireccion === 'asc' ? '↑' : '↓' }}</span>
+                </th>
+                <th (click)="toggleSort('accion')" class="sortable">
+                  Acción
+                  <span *ngIf="sortCampo === 'accion'">{{ sortDireccion === 'asc' ? '↑' : '↓' }}</span>
+                </th>
+                <th (click)="toggleSort('descripcion')" class="sortable">
+                  Descripción
+                  <span *ngIf="sortCampo === 'descripcion'">{{ sortDireccion === 'asc' ? '↑' : '↓' }}</span>
+                </th>
                 <th>IP</th>
                 <th>User Agent</th>
-                <th>Fecha</th>
+                <th (click)="toggleSort('fecha')" class="sortable">
+                  Fecha
+                  <span *ngIf="sortCampo === 'fecha'">{{ sortDireccion === 'asc' ? '↑' : '↓' }}</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -98,6 +133,41 @@
 
           <div *ngIf="filteredAuditorias.length === 0" class="no-data">
             No se encontraron registros de auditoría
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="pagination-controls" *ngIf="totalPages > 1">
+            <div class="pagination-info">
+              <span>Mostrando {{ getShowingRange() }} de {{ totalRecords }} registros</span>
+            </div>
+            <div class="pagination-buttons">
+              <button 
+                class="btn btn--sm" 
+                (click)="changePage(currentPage - 1)"
+                [disabled]="currentPage === 1"
+              >
+                Anterior
+              </button>
+              <span class="pagination-pages">
+                Página {{ currentPage }} de {{ totalPages }}
+              </span>
+              <button 
+                class="btn btn--sm" 
+                (click)="changePage(currentPage + 1)"
+                [disabled]="currentPage === totalPages"
+              >
+                Siguiente
+              </button>
+            </div>
+            <div class="pagination-size">
+              <label class="filter-label">Registros por página:</label>
+              <select class="filter-select" [(ngModel)]="pageSize" (change)="changePageSize(pageSize)">
+                <option [value]="10">10</option>
+                <option [value]="20">20</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
