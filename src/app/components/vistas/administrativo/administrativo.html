@@ -1,4 +1,356 @@
 <app-layout>
-  <h1>Administrativo</h1>
-  <p>Bienvenido al panel administrativo de MedEstudios</p>
+  <div class="administrativo-container">
+    <!-- Header -->
+    <header class="page-header">
+      <div class="page-header__title">
+        <h1>Agenda del Día</h1>
+        <p class="page-header__subtitle">Gestión de citas y estudios programados</p>
+      </div>
+      <div class="page-header__actions">
+        <div class="date-filter">
+          <i class="far fa-calendar"></i>
+          <input type="date" [(ngModel)]="selectedDate" (change)="loadAgenda()">
+        </div>
+        <button class="btn btn--primary" (click)="openModal()">
+          <i class="fas fa-plus"></i>
+          Agendar Estudio
+        </button>
+      </div>
+    </header>
+
+    <!-- KPI Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-card__icon kpi-card__icon--blue">
+          <i class="fas fa-user-injured"></i>
+        </div>
+        <div class="kpi-card__content">
+          <div class="kpi-card__value">{{ totalCitas }}</div>
+          <div class="kpi-card__label">Pacientes del día</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__icon kpi-card__icon--amber">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="kpi-card__content">
+          <div class="kpi-card__value">{{ pendientes }}</div>
+          <div class="kpi-card__label">Pendientes</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__icon kpi-card__icon--sky">
+          <i class="fas fa-spinner"></i>
+        </div>
+        <div class="kpi-card__content">
+          <div class="kpi-card__value">{{ enProceso }}</div>
+          <div class="kpi-card__label">En proceso</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__icon kpi-card__icon--emerald">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="kpi-card__content">
+          <div class="kpi-card__value">{{ finalizados }}</div>
+          <div class="kpi-card__label">Finalizados</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content with Sidebar -->
+    <div class="content-layout">
+      <!-- Agenda Table -->
+      <section class="agenda-main">
+        <div class="card">
+          <div class="card__header">
+            <div class="card__title">
+              <h2>Citas Programadas</h2>
+              <span class="badge badge--info">{{ filteredAgenda.length }} citas</span>
+            </div>
+            <div class="filter-tabs">
+              <button 
+                class="filter-tab" 
+                [class.active]="activeFilter === 'todos'"
+                (click)="setFilter('todos')"
+              >
+                Todos
+              </button>
+              <button 
+                class="filter-tab" 
+                [class.active]="activeFilter === 'pendiente'"
+                (click)="setFilter('pendiente')"
+              >
+                Pendientes
+              </button>
+              <button 
+                class="filter-tab" 
+                [class.active]="activeFilter === 'proceso'"
+                (click)="setFilter('proceso')"
+              >
+                En Proceso
+              </button>
+              <button 
+                class="filter-tab" 
+                [class.active]="activeFilter === 'finalizado'"
+                (click)="setFilter('finalizado')"
+              >
+                Finalizados
+              </button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Hora</th>
+                  <th>Paciente</th>
+                  <th>Estudio</th>
+                  <th>Médico</th>
+                  <th>Técnico</th>
+                  <th>Sala</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  *ngFor="let cita of filteredAgenda"
+                  [class.row-highlight]="cita.estado === 'proceso'"
+                >
+                  <td class="time-cell">{{ cita.hora }}</td>
+                  <td>
+                    <div class="patient-cell">
+                      <div class="patient-avatar">{{ getInitials(cita.pacienteNombre) }}</div>
+                      <div class="patient-info">
+                        <div class="patient-name">{{ cita.pacienteNombre }}</div>
+                        <div class="patient-details">{{ cita.pacienteId }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="estudio-cell">
+                      {{ cita.estudio }}
+                      <span *ngIf="cita.prioridad === 'urgente'" class="priority-badge priority-badge--urgent">
+                        <i class="fas fa-exclamation-circle"></i>
+                      </span>
+                    </div>
+                  </td>
+                  <td>{{ cita.medicoNombre || 'Sin asignar' }}</td>
+                  <td>{{ cita.tecnicoNombre || 'Sin asignar' }}</td>
+                  <td>{{ cita.sala }}</td>
+                  <td>
+                    <span [class]="'badge badge--' + getEstadoBadgeClass(cita.estado)">
+                      {{ getEstadoLabel(cita.estado) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn-icon" (click)="changeEstado(cita)" title="Cambiar estado">
+                        <i class="fas fa-sync-alt"></i>
+                      </button>
+                      <button class="btn-icon" (click)="selectCita(cita)" title="Ver detalles">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div *ngIf="filteredAgenda.length === 0" class="no-data">
+              No se encontraron citas para el filtro seleccionado
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar -->
+      <aside class="agenda-sidebar">
+        <!-- Médicos Disponibles -->
+        <div class="card sidebar-card">
+          <div class="card__header">
+            <h3>
+              <i class="fas fa-user-md"></i>
+              Médicos Disponibles
+            </h3>
+            <span class="badge badge--success">{{ medicosDisponibles.length }}</span>
+          </div>
+          <div class="sidebar-list">
+            <div *ngFor="let med of medicosDisponibles" class="sidebar-item">
+              <div class="sidebar-item__icon">
+                <i class="fas fa-user-md"></i>
+              </div>
+              <div class="sidebar-item__content">
+                <div class="sidebar-item__name">{{ med.nombre }}</div>
+                <div class="sidebar-item__detail">{{ med.especialidad }}</div>
+              </div>
+              <div class="sidebar-item__count">{{ med.estudiosHoy }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Técnicos Disponibles -->
+        <div class="card sidebar-card">
+          <div class="card__header">
+            <h3>
+              <i class="fas fa-microscope"></i>
+              Técnicos Disponibles
+            </h3>
+            <span class="badge badge--info">{{ tecnicosDisponibles.length }}</span>
+          </div>
+          <div class="sidebar-list">
+            <div *ngFor="let tec of tecnicosDisponibles" class="sidebar-item">
+              <div class="sidebar-item__icon sidebar-item__icon--sky">
+                <i class="fas fa-microscope"></i>
+              </div>
+              <div class="sidebar-item__content">
+                <div class="sidebar-item__name">{{ tec.nombre }}</div>
+                <div class="sidebar-item__detail">{{ tec.especialidad }}</div>
+              </div>
+              <div class="sidebar-item__status available"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sin Asignar -->
+        <div class="card sidebar-card sidebar-card--warning">
+          <div class="card__header">
+            <h3>
+              <i class="fas fa-exclamation-triangle"></i>
+              Sin Asignar
+            </h3>
+            <span class="badge badge--danger">{{ sinAsignar.length }}</span>
+          </div>
+          <div class="sidebar-list">
+            <div *ngFor="let cita of sinAsignar" class="sidebar-item sidebar-item--warning">
+              <div class="sidebar-item__time">{{ cita.hora }}</div>
+              <div class="sidebar-item__content">
+                <div class="sidebar-item__name">{{ cita.estudio }}</div>
+                <div class="sidebar-item__detail">{{ cita.pacienteNombre }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modal Agendar Estudio -->
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModalOutside($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-header__title">
+          <div class="modal-header__icon">
+            <i class="fas fa-calendar-plus"></i>
+          </div>
+          <div>
+            <h2>Agendar Nuevo Estudio</h2>
+            <p>Complete los datos para programar la cita</p>
+          </div>
+        </div>
+        <button class="btn-icon" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form class="modal-form" (ngSubmit)="submitAgenda($event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Paciente *</label>
+            <select [(ngModel)]="form.pacienteId" required>
+              <option value="">Seleccionar paciente...</option>
+              <option *ngFor="let pac of pacientes" [value]="pac.id">
+                {{ pac.nombre }} ({{ pac.id }})
+              </option>
+            </select>
+          </div>
+          <div class="form-row form-row--inline">
+            <div class="form-group">
+              <label>Fecha *</label>
+              <input type="date" [(ngModel)]="form.fecha" required>
+            </div>
+            <div class="form-group">
+              <label>Hora *</label>
+              <input type="time" [(ngModel)]="form.hora" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo de Estudio *</label>
+            <select [(ngModel)]="form.estudio" required>
+              <option value="">Seleccionar estudio...</option>
+              <option *ngFor="let est of tiposEstudio" [value]="est">
+                {{ est }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Sala *</label>
+            <select [(ngModel)]="form.sala" required>
+              <option value="">Seleccionar sala...</option>
+              <option *ngFor="let sala of salas" [value]="sala">
+                {{ sala }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Médico Radiólogo *</label>
+            <select [(ngModel)]="form.medicoId" required>
+              <option value="">Seleccionar médico...</option>
+              <option *ngFor="let med of medicos" [value]="med.id">
+                {{ med.nombre }} — {{ med.especialidad }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Técnico *</label>
+            <select [(ngModel)]="form.tecnicoId" required>
+              <option value="">Seleccionar técnico...</option>
+              <option *ngFor="let tec of tecnicos" [value]="tec.id">
+                {{ tec.nombre }} — {{ tec.especialidad }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notas / Indicaciones Clínicas</label>
+          <textarea [(ngModel)]="form.notas" rows="3" placeholder="Ej: Paciente con dolor agudo, prioridad alta..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Prioridad</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" [(ngModel)]="form.prioridad" value="normal">
+              <span>Normal</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" [(ngModel)]="form.prioridad" value="urgente">
+              <span>Urgente</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" [(ngModel)]="form.prioridad" value="stat">
+              <span>STAT</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn--secondary" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn--primary">
+            <i class="fas fa-check"></i>
+            Confirmar Agendado
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </app-layout>

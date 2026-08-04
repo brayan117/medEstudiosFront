@@ -30,14 +30,11 @@ export class Sliderbar {
       ],
       'TECNICO': [
         { icon: '🏠', label: 'Dashboard', path: '/tecnico' },
-        { icon: '📋', label: 'Estudios Pendientes', path: '/tecnico/pending' },
         { icon: '📁', label: 'Historial', path: '/tecnico/history' }
       ],
       'ADMINISTRATIVO': [
-        { icon: '🏠', label: 'Dashboard', path: '/administrativo' },
-        { icon: '📅', label: 'Agenda', path: '/administrativo/schedule' },
-        { icon: '👥', label: 'Pacientes', path: '/administrativo/patients' },
-        { icon: '💰', label: 'Facturación', path: '/administrativo/billing' }
+        { icon: '📅', label: 'Dashboard', path: '/administrativo' },
+       
       ],
       'USUARIO': [
         { icon: '🏠', label: 'Dashboard', path: '/usuario' },
