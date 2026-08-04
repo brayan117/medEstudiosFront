@@ -6,14 +6,15 @@
 .main-content {
   margin-left: 260px;
   flex: 1;
-  padding: 30px;
+  padding: 20px;
   background: #f8fafc;
   transition: margin-left 0.3s ease;
 }
 
 .content-wrapper {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .content-wrapper h1 {

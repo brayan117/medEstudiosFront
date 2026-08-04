@@ -11,12 +11,18 @@ export class AuthService {
   private readonly USERNAME_KEY = 'auth_username';
   private readonly ROLE_KEY = 'auth_role';
   private readonly ROLE_CLAIM = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+  private readonly ESTADO_CLAIM = 'estado';
   private _authState = new BehaviorSubject<boolean>(this.isLoggedIn());
   authState$ = this._authState.asObservable();
 
   constructor(private router: Router) {}
 
   login(response: LoginResponseDTO): void {
+    const estado = this.decodeEstadoFromToken(response.token);
+    if (estado !== 'True') {
+      throw new Error('Usuario desactivado. No puede iniciar sesión.');
+    }
+
     localStorage.setItem(this.TOKEN_KEY, response.token);
     localStorage.setItem(this.USERNAME_KEY, response.username);
     const role = this.decodeRoleFromToken(response.token);
@@ -55,6 +61,17 @@ export class AuthService {
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
       return decoded[this.ROLE_CLAIM] || null;
+    } catch (e) {
+      console.error('Error decoding token:', e);
+      return null;
+    }
+  }
+
+  private decodeEstadoFromToken(token: string): string | null {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return decoded[this.ESTADO_CLAIM] || null;
     } catch (e) {
       console.error('Error decoding token:', e);
       return null;

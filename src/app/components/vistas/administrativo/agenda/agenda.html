@@ -1,0 +1,172 @@
+<app-layout>
+  <div class="agenda-container">
+    <!-- Header -->
+    <header class="agenda-header">
+      <div class="agenda-header__title">
+        <h1>Agendar Citas</h1>
+        <p class="agenda-header__subtitle">Matriz de disponibilidad semanal</p>
+      </div>
+      <div class="agenda-header__controls">
+        <button class="btn btn--secondary" (click)="previousWeek()">
+          <i class="fas fa-chevron-left"></i>
+          Semana anterior
+        </button>
+        <div class="week-info">
+          <span class="week-info__label">Semana del</span>
+          <span class="week-info__dates">{{ getWeekRange() }}</span>
+        </div>
+        <button class="btn btn--secondary" (click)="nextWeek()">
+          Semana siguiente
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Calendar Matrix -->
+    <div class="calendar-matrix">
+      <!-- Header Row: Days and Dates -->
+      <div class="calendar-header">
+        <div class="calendar-cell calendar-cell--corner">
+          <span class="corner-label">Hora</span>
+        </div>
+        <div *ngFor="let day of weekDays" class="calendar-cell calendar-cell--header">
+          <div class="day-name">{{ day.name }}</div>
+          <div class="day-date">{{ formatDate(day.date) }}</div>
+        </div>
+      </div>
+
+      <!-- Time Rows -->
+      <div *ngFor="let hour of hours" class="calendar-row">
+        <div class="calendar-cell calendar-cell--time">
+          {{ formatHour(hour) }}
+        </div>
+        <div 
+          *ngFor="let day of weekDays" 
+          class="calendar-cell calendar-cell--slot"
+          [class.has-appointment]="hasAppointment(day.date, hour)"
+          [class.appointment-urgent]="isAppointmentUrgent(day.date, hour)"
+          (click)="openSlotModal(day.date, hour)"
+        >
+          <div *ngIf="hasAppointment(day.date, hour)" class="appointment-preview">
+            <div class="appointment-preview__time">{{ hour }}</div>
+            <div class="appointment-preview__patient">{{ getAppointmentPatient(day.date, hour) }}</div>
+            <div class="appointment-preview__study">{{ getAppointmentStudy(day.date, hour) }}</div>
+          </div>
+          <div *ngIf="!hasAppointment(day.date, hour)" class="slot-placeholder">
+            <i class="fas fa-plus"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="agenda-legend">
+      <div class="legend-item">
+        <div class="legend-color legend-color--available"></div>
+        <span>Disponible</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-color--scheduled"></div>
+        <span>Agendado</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-color--urgent"></div>
+        <span>Urgente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Agendar Cita -->
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModalOutside($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-header__title">
+          <h2>Agendar Cita</h2>
+          <p>{{ selectedSlotDate | date:'fullDate' }} - {{ selectedSlotHour }}</p>
+        </div>
+        <button class="btn-icon" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form class="modal-form" (ngSubmit)="submitAppointment($event)">
+        <div class="form-group">
+          <label>Paciente *</label>
+          <select [(ngModel)]="appointmentForm.pacienteId" required>
+            <option value="">Seleccionar paciente...</option>
+            <option *ngFor="let pac of pacientes" [value]="pac.id">
+              {{ pac.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de Estudio *</label>
+          <select [(ngModel)]="appointmentForm.estudio" required>
+            <option value="">Seleccionar estudio...</option>
+            <option *ngFor="let est of tiposEstudio" [value]="est">
+              {{ est }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Sala *</label>
+          <select [(ngModel)]="appointmentForm.sala" required>
+            <option value="">Seleccionar sala...</option>
+            <option *ngFor="let sala of salas" [value]="sala">
+              {{ sala }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Médico *</label>
+          <select [(ngModel)]="appointmentForm.medicoId" required>
+            <option value="">Seleccionar médico...</option>
+            <option *ngFor="let med of medicos" [value]="med.id">
+              {{ med.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Técnico *</label>
+          <select [(ngModel)]="appointmentForm.tecnicoId" required>
+            <option value="">Seleccionar técnico...</option>
+            <option *ngFor="let tec of tecnicos" [value]="tec.id">
+              {{ tec.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Prioridad</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" [(ngModel)]="appointmentForm.prioridad" value="normal">
+              <span>Normal</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" [(ngModel)]="appointmentForm.prioridad" value="urgente">
+              <span>Urgente</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notas</label>
+          <textarea [(ngModel)]="appointmentForm.notas" rows="3" placeholder="Notas adicionales..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn--secondary" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn--primary">
+            <i class="fas fa-check"></i>
+            Agendar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</app-layout>

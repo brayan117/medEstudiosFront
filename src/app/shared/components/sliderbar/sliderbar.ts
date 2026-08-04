@@ -33,7 +33,8 @@ export class Sliderbar {
         { icon: '📁', label: 'Historial', path: '/tecnico/history' }
       ],
       'ADMINISTRATIVO': [
-        { icon: '📅', label: 'Dashboard', path: '/administrativo' },
+        { icon: '🏠', label: 'Dashboard', path: '/administrativo' },
+        {icon: '📅', label: 'Agendar citas', path: '/administrativo/agenda'}
        
       ],
       'USUARIO': [

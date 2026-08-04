@@ -73,11 +73,6 @@
       </div>
     </div>
 
-    <!-- Debug Info -->
-    <div class="no-data" style="font-size: 12px; color: #666;">
-      Debug: loading={{ loading }}, users={{ users.length }}, error={{ error || 'null' }}
-    </div>
-
     <!-- Success Message -->
     <div *ngIf="successMessage" class="no-data" style="color: var(--color-success); background: rgba(46, 125, 50, 0.1); padding: var(--spacing-md); border-radius: var(--border-radius);">
       ✅ {{ successMessage }}
@@ -128,6 +123,9 @@
                 </button>
                 <button class="btn-icon btn-icon--delete" (click)="deleteUser(user)" title="Eliminar">
                   🗑️
+                </button>
+                <button class="btn-icon" title="Vincular">
+                  🔗
                 </button>
                 <button 
                   class="btn-icon btn-icon--toggle" 

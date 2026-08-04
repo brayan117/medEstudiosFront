@@ -35,5 +35,10 @@ export const routes: Routes = [
     path: 'administrativo',
     loadComponent: () => import('./components/vistas/administrativo/administrativo').then(m => m.Administrativo),
     canActivate: [authGuard]
+  },
+  {
+    path: 'administrativo/agenda',
+    loadComponent: () => import('./components/vistas/administrativo/agenda/agenda').then(m => m.Agenda),
+    canActivate: [authGuard]
   }
 ];

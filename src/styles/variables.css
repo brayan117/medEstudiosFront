@@ -1,103 +1,147 @@
 :root {
 
     /* ===========================
-       Colores principales
+       Colores principales - Tema Médico
     ============================ */
 
-    --color-primary: #1565C0;
-    --color-primary-hover: #0D47A1;
+    --color-primary: #0EA5E9;
+    --color-primary-hover: #0284C7;
+    --color-primary-light: #E0F2FE;
+    --color-primary-dark: #0369A1;
 
-    --color-secondary: #546E7A;
+    --color-secondary: #64748B;
+    --color-secondary-light: #F1F5F9;
 
-    --color-success: #2E7D32;
+    --color-success: #10B981;
+    --color-success-light: #D1FAE5;
+    --color-success-dark: #059669;
 
-    --color-danger: #D32F2F;
+    --color-danger: #EF4444;
+    --color-danger-light: #FEE2E2;
+    --color-danger-dark: #DC2626;
 
-    --color-warning: #F9A825;
+    --color-warning: #F59E0B;
+    --color-warning-light: #FEF3C7;
+    --color-warning-dark: #D97706;
 
-    --color-info: #0288D1;
+    --color-info: #3B82F6;
+    --color-info-light: #DBEAFE;
+    --color-info-dark: #2563EB;
+
+    --color-dark: #1E293B;
+    --color-dark-light: #334155;
 
 
     /* ===========================
-       Fondo
+       Fondo - Gradientes y tonos médicos
     ============================ */
 
-    --background-color: #F4F7FA;
+    --background-color: #F8FAFC;
+    --background-gradient: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
 
     --surface-color: #FFFFFF;
+    --surface-gradient: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
 
-    --sidebar-color: #1F3A5F;
+    --sidebar-color: #0F172A;
+    --sidebar-gradient: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
 
     --navbar-color: #FFFFFF;
+    --navbar-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
 
     /* ===========================
        Texto
     ============================ */
 
-    --text-primary: #263238;
-
-    --text-secondary: #607D8B;
-
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --text-tertiary: #94A3B8;
     --text-light: #FFFFFF;
+    --text-muted: #CBD5E1;
 
 
     /* ===========================
        Bordes
     ============================ */
 
-    --border-color: #E0E0E0;
+    --border-color: #E2E8F0;
+    --border-color-light: #F1F5F9;
+    --border-color-dark: #CBD5E1;
 
-    --border-radius: 8px;
+    --border-radius: 12px;
+    --border-radius-sm: 8px;
+    --border-radius-lg: 16px;
+    --border-radius-xl: 24px;
 
 
     /* ===========================
-       Sombras
+       Sombras - Más suaves y modernas
     ============================ */
 
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, .08);
-
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, .12);
-
-    --shadow-lg: 0 8px 16px rgba(0, 0, 0, .16);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.15);
 
 
     /* ===========================
        Transiciones
     ============================ */
 
-    --transition: all .3s ease;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s ease;
+    --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 
 
     /* ===========================
        Espaciados
     ============================ */
 
-    --spacing-xs: .25rem;
-
-    --spacing-sm: .5rem;
-
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
-
     --spacing-lg: 1.5rem;
-
     --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    --spacing-3xl: 4rem;
 
 
     /* ===========================
        Tipografía
     ============================ */
 
-    --font-family: "Inter", sans-serif;
+    --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-family-heading: 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-    --font-size-xs: .75rem;
-
-    --font-size-sm: .875rem;
-
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
     --font-size-md: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
 
-    --font-size-lg: 1.25rem;
 
-    --font-size-xl: 1.5rem;
+    /* ===========================
+       Gradientes
+    ============================ */
 
+    --gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+    --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    --gradient-danger: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    --gradient-warning: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    --gradient-info: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    --gradient-dark: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+
+
+    /* ===========================
+       Glassmorphism
+    ============================ */
+
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }

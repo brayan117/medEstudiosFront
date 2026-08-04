@@ -47,9 +47,14 @@ export class Login {
 
     this.loginService.login(this.loginForm.value).subscribe({
       next: (res) => {
-        this.authService.login(res);
-        const route = this.authService.getRouteByRole();
-        this.router.navigate([route]);
+        try {
+          this.authService.login(res);
+          const route = this.authService.getRouteByRole();
+          this.router.navigate([route]);
+        } catch (error) {
+          this.errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+          this.loading = false;
+        }
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Error al iniciar sesión';
