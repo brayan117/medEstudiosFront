@@ -53,6 +53,8 @@ export class Agenda implements OnInit {
   showModal = false;
   selectedSlotDate: Date = new Date();
   selectedSlotHour = '';
+  selectedAppointment: Appointment | null = null;
+  showDetailModal = false;
 
   appointmentForm = {
     pacienteId: '',
@@ -247,8 +249,10 @@ export class Agenda implements OnInit {
     this.selectedSlotHour = hour;
     
     if (this.hasAppointment(date, hour)) {
-      // View existing appointment (could expand to edit modal))
-      console.log('Ver cita existente');
+      // View existing appointment detail
+      const dateKey = this.formatDateKey(date);
+      this.selectedAppointment = this.appointments.find(app => app.date === dateKey && app.hour === hour) || null;
+      this.showDetailModal = true;
     } else {
       // Open new appointment modal
       this.resetForm();
@@ -260,9 +264,20 @@ export class Agenda implements OnInit {
     this.showModal = false;
   }
 
+  closeDetailModal() {
+    this.showDetailModal = false;
+    this.selectedAppointment = null;
+  }
+
   closeModalOutside(event: Event) {
     if (event.target === event.currentTarget) {
       this.closeModal();
+    }
+  }
+
+  closeDetailModalOutside(event: Event) {
+    if (event.target === event.currentTarget) {
+      this.closeDetailModal();
     }
   }
 
@@ -302,5 +317,35 @@ export class Agenda implements OnInit {
 
     this.appointments.push(newAppointment);
     this.closeModal();
+  }
+
+  editAppointment() {
+    if (!this.selectedAppointment) return;
+
+    this.closeDetailModal();
+    
+    // Pre-fill form with existing appointment data
+    this.appointmentForm = {
+      pacienteId: this.selectedAppointment.pacienteId,
+      estudio: this.selectedAppointment.estudio,
+      sala: this.selectedAppointment.sala,
+      medicoId: this.selectedAppointment.medicoId,
+      tecnicoId: this.selectedAppointment.tecnicoId,
+      prioridad: this.selectedAppointment.prioridad,
+      notas: this.selectedAppointment.notas
+    };
+    
+    this.showModal = true;
+  }
+
+  deleteAppointment() {
+    if (!this.selectedAppointment) return;
+
+    const dateKey = this.formatDateKey(this.selectedSlotDate);
+    this.appointments = this.appointments.filter(
+      app => !(app.date === dateKey && app.hour === this.selectedSlotHour)
+    );
+    
+    this.closeDetailModal();
   }
 }

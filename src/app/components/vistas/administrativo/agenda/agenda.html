@@ -169,4 +169,80 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal Detalle de Cita -->
+  <div *ngIf="showDetailModal && selectedAppointment" class="modal-overlay" (click)="closeDetailModalOutside($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-header__title">
+          <h2>Detalle de Cita</h2>
+          <p>{{ selectedSlotDate | date:'fullDate' }} - {{ selectedSlotHour }}</p>
+        </div>
+        <button class="btn-icon" (click)="closeDetailModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-form detail-view">
+        <div class="detail-section">
+          <h3>Información del Paciente</h3>
+          <div class="detail-row">
+            <span class="detail-label">Paciente:</span>
+            <span class="detail-value">{{ selectedAppointment.pacienteNombre }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Información del Estudio</h3>
+          <div class="detail-row">
+            <span class="detail-label">Estudio:</span>
+            <span class="detail-value">{{ selectedAppointment.estudio }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Sala:</span>
+            <span class="detail-value">{{ selectedAppointment.sala }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Prioridad:</span>
+            <span class="detail-value">
+              <span [class]="selectedAppointment.prioridad === 'urgente' ? 'badge badge--danger' : 'badge badge--success'">
+                {{ selectedAppointment.prioridad === 'urgente' ? 'Urgente' : 'Normal' }}
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Personal Asignado</h3>
+          <div class="detail-row">
+            <span class="detail-label">Médico:</span>
+            <span class="detail-value">{{ selectedAppointment.medicoNombre }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Técnico:</span>
+            <span class="detail-value">{{ selectedAppointment.tecnicoNombre }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedAppointment.notas">
+          <h3>Notas</h3>
+          <div class="detail-row">
+            <span class="detail-value">{{ selectedAppointment.notas }}</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn--secondary" (click)="closeDetailModal()">Cerrar</button>
+          <button type="button" class="btn btn--danger" (click)="deleteAppointment()">
+            <i class="fas fa-trash"></i>
+            Eliminar
+          </button>
+          <button type="button" class="btn btn--primary" (click)="editAppointment()">
+            <i class="fas fa-edit"></i>
+            Editar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </app-layout>
