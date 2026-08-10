@@ -1,7 +1,24 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Layout } from '../../../../shared/layout/layout';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { afiliadoService } from '../../../../services/afiliado/afiliado.service';
+import { afiliadoDTO } from '../../../../models/interfaces/afiliado/afiliadoDTO.interface';
+import { medicoService } from '../../../../services/medico/medico.service';
+import { MedicoBusquedaDTO } from '../../../../models/interfaces/medico/medicoBusquedaDTO.interface';
+
+interface AppointmentForm {
+  pacienteId: string;
+  pacienteNombre: string;
+  estudio: string;
+  sala: string;
+  medicoId: string;
+  medicoNombre: string;
+  tecnicoId: string;
+  tecnicoNombre: string;
+  prioridad: 'normal' | 'urgente';
+  notas: string;
+}
 
 interface Appointment {
   date: string;
@@ -45,6 +62,10 @@ interface DayInfo {
   styleUrl: './agenda.css',
 })
 export class Agenda implements OnInit {
+  private afiliadoService = inject(afiliadoService);
+  private medicoService = inject(medicoService);
+  private cdr = inject(ChangeDetectorRef);
+
   currentWeekStart: Date = new Date();
   weekDays: DayInfo[] = [];
   hours: string[] = [];
@@ -55,13 +76,21 @@ export class Agenda implements OnInit {
   selectedSlotHour = '';
   selectedAppointment: Appointment | null = null;
   showDetailModal = false;
+  documentoBusqueda = '';
+  medicoBusqueda = '';
+  tecnicoBusqueda = '';
+  resultadosMedicos: MedicoBusquedaDTO[] = [];
+  mostrarResultadosMedicos = false;
 
-  appointmentForm = {
+  appointmentForm: AppointmentForm = {
     pacienteId: '',
+    pacienteNombre: '',
     estudio: '',
     sala: '',
     medicoId: '',
+    medicoNombre: '',
     tecnicoId: '',
+    tecnicoNombre: '',
     prioridad: 'normal',
     notas: ''
   };
@@ -284,33 +313,104 @@ export class Agenda implements OnInit {
   resetForm() {
     this.appointmentForm = {
       pacienteId: '',
+      pacienteNombre: '',
       estudio: '',
       sala: '',
       medicoId: '',
+      medicoNombre: '',
       tecnicoId: '',
+      tecnicoNombre: '',
       prioridad: 'normal',
       notas: ''
     };
+    this.documentoBusqueda = '';
+    this.medicoBusqueda = '';
+    this.tecnicoBusqueda = '';
+    this.resultadosMedicos = [];
+    this.mostrarResultadosMedicos = false;
+  }
+
+  buscarPaciente() {
+    if (!this.documentoBusqueda || this.documentoBusqueda.trim() === '') {
+      return;
+    }
+
+    this.afiliadoService.buscarAfiliado(this.documentoBusqueda).subscribe({
+      next: (afiliado: afiliadoDTO) => {
+        this.appointmentForm.pacienteId = afiliado.documento;
+        this.appointmentForm.pacienteNombre = `${afiliado.nom1} ${afiliado.nom2} ${afiliado.ape1} ${afiliado.ape2}`.trim();
+      },
+      error: (err) => {
+        console.error('Error buscando afiliado:', err);
+        alert('No se encontró el paciente con el documento ingresado');
+      }
+    });
+  }
+
+  buscarMedico() {
+    if (!this.medicoBusqueda || this.medicoBusqueda.trim() === '') {
+      return;
+    }
+
+    this.medicoService.buscarMedico(this.medicoBusqueda).subscribe({
+      next: (medicos: MedicoBusquedaDTO[]) => {
+        if (medicos.length === 0) {
+          alert('No se encontró médico con ese nombre');
+          this.mostrarResultadosMedicos = false;
+        } else {
+          this.resultadosMedicos = medicos;
+          this.mostrarResultadosMedicos = true;
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error buscando médico:', err);
+        alert('Error al buscar médico');
+        this.mostrarResultadosMedicos = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  seleccionarMedico(medico: MedicoBusquedaDTO) {
+    this.appointmentForm.medicoId = medico.id.toString();
+    this.appointmentForm.medicoNombre = medico.nombres;
+    this.medicoBusqueda = medico.nombres;
+    this.mostrarResultadosMedicos = false;
+  }
+
+  buscarTecnico() {
+    if (!this.tecnicoBusqueda || this.tecnicoBusqueda.trim() === '') {
+      return;
+    }
+
+    // Buscar técnico en la lista mock por nombre (simulación)
+    const tecnicoEncontrado = this.tecnicos.find(t => 
+      t.nombre.toLowerCase().includes(this.tecnicoBusqueda.toLowerCase())
+    );
+
+    if (tecnicoEncontrado) {
+      this.appointmentForm.tecnicoId = tecnicoEncontrado.id;
+      this.appointmentForm.tecnicoNombre = tecnicoEncontrado.nombre;
+    } else {
+      alert('No se encontró técnico con ese nombre');
+    }
   }
 
   submitAppointment(event: Event) {
     event.preventDefault();
 
-    const paciente = this.pacientes.find(p => p.id === this.appointmentForm.pacienteId);
-    const medico = this.medicos.find(m => m.id === this.appointmentForm.medicoId);
-    const tecnico = this.tecnicos.find(t => t.id === this.appointmentForm.tecnicoId);
-
     const newAppointment: Appointment = {
       date: this.formatDateKey(this.selectedSlotDate),
       hour: this.selectedSlotHour,
       pacienteId: this.appointmentForm.pacienteId,
-      pacienteNombre: paciente?.nombre || '',
+      pacienteNombre: this.appointmentForm.pacienteNombre,
       estudio: this.appointmentForm.estudio,
       sala: this.appointmentForm.sala,
       medicoId: this.appointmentForm.medicoId,
-      medicoNombre: medico?.nombre || '',
+      medicoNombre: this.appointmentForm.medicoNombre,
       tecnicoId: this.appointmentForm.tecnicoId,
-      tecnicoNombre: tecnico?.nombre || '',
+      tecnicoNombre: this.appointmentForm.tecnicoNombre,
       prioridad: this.appointmentForm.prioridad as 'normal' | 'urgente',
       notas: this.appointmentForm.notas
     };
@@ -327,10 +427,13 @@ export class Agenda implements OnInit {
     // Pre-fill form with existing appointment data
     this.appointmentForm = {
       pacienteId: this.selectedAppointment.pacienteId,
+      pacienteNombre: this.selectedAppointment.pacienteNombre,
       estudio: this.selectedAppointment.estudio,
       sala: this.selectedAppointment.sala,
       medicoId: this.selectedAppointment.medicoId,
+      medicoNombre: this.selectedAppointment.medicoNombre,
       tecnicoId: this.selectedAppointment.tecnicoId,
+      tecnicoNombre: this.selectedAppointment.tecnicoNombre,
       prioridad: this.selectedAppointment.prioridad,
       notas: this.selectedAppointment.notas
     };

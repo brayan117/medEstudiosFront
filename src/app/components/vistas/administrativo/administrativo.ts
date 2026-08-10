@@ -45,7 +45,6 @@ export class Administrativo implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   selectedDate = '';
-  showModal = false;
   activeFilter = 'todos';
 
   agenda: Cita[] = [];
@@ -54,43 +53,6 @@ export class Administrativo implements OnInit {
   medicos: Medico[] = [];
   tecnicos: Tecnico[] = [];
   pacientes: Paciente[] = [];
-
-  tiposEstudio = [
-    'RX Tórax PA/Lateral',
-    'RX Abdomen Simple',
-    'TC Cerebro sin contraste',
-    'TC Tórax con contraste',
-    'TC Abdomen y Pelvis',
-    'RM Cerebro',
-    'RM Columna Lumbar',
-    'RM Rodilla',
-    'USG Abdomen Completo',
-    'USG Pélvico',
-    'Mamografía Bilateral',
-    'Densitometría Ósea'
-  ];
-
-  salas = [
-    'Sala 1 - RX',
-    'Sala 2 - RX',
-    'Sala 3 - TC',
-    'Sala 4 - RM',
-    'Sala 5 - USG',
-    'Sala 6 - Mamografía',
-    'Sala 7 - Densitometría'
-  ];
-
-  form = {
-    pacienteId: '',
-    fecha: '',
-    hora: '',
-    estudio: '',
-    sala: '',
-    medicoId: '',
-    tecnicoId: '',
-    notas: '',
-    prioridad: 'normal'
-  };
 
   ngOnInit() {
     this.setTodayDate();
@@ -101,7 +63,6 @@ export class Administrativo implements OnInit {
   setTodayDate() {
     const today = new Date().toISOString().split('T')[0];
     this.selectedDate = today;
-    this.form.fecha = today;
   }
 
   loadMockData() {
@@ -223,59 +184,5 @@ export class Administrativo implements OnInit {
 
   selectCita(cita: Cita) {
     console.log('Seleccionar cita:', cita);
-  }
-
-  openModal() {
-    this.showModal = true;
-    this.resetForm();
-  }
-
-  closeModal() {
-    this.showModal = false;
-  }
-
-  closeModalOutside(event: Event) {
-    if (event.target === event.currentTarget) {
-      this.closeModal();
-    }
-  }
-
-  resetForm() {
-    this.form = {
-      pacienteId: '',
-      fecha: this.selectedDate,
-      hora: '',
-      estudio: '',
-      sala: '',
-      medicoId: '',
-      tecnicoId: '',
-      notas: '',
-      prioridad: 'normal'
-    };
-  }
-
-  submitAgenda(event: Event) {
-    event.preventDefault();
-
-    const paciente = this.pacientes.find(p => p.id === this.form.pacienteId);
-    const medico = this.medicos.find(m => m.id === this.form.medicoId);
-    const tecnico = this.tecnicos.find(t => t.id === this.form.tecnicoId);
-
-    const nuevaCita: Cita = {
-      hora: this.form.hora,
-      pacienteNombre: paciente?.nombre || '',
-      pacienteId: this.form.pacienteId,
-      estudio: this.form.estudio,
-      medicoNombre: medico?.nombre,
-      tecnicoNombre: tecnico?.nombre,
-      sala: this.form.sala,
-      estado: 'pendiente',
-      prioridad: this.form.prioridad as any
-    };
-
-    this.agenda.push(nuevaCita);
-    this.agenda.sort((a, b) => a.hora.localeCompare(b.hora));
-    this.applyFilter();
-    this.closeModal();
   }
 }

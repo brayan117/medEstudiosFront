@@ -91,13 +91,19 @@
 
       <form class="modal-form" (ngSubmit)="submitAppointment($event)">
         <div class="form-group">
+          <label>Documento del Paciente *</label>
+          <div class="input-with-button">
+            <input type="text" [(ngModel)]="documentoBusqueda" placeholder="Ingrese documento..." name="documento">
+            <button type="button" class="btn btn--secondary" (click)="buscarPaciente()">
+              <i class="fas fa-search"></i>
+              Buscar
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label>Paciente *</label>
-          <select [(ngModel)]="appointmentForm.pacienteId" required>
-            <option value="">Seleccionar paciente...</option>
-            <option *ngFor="let pac of pacientes" [value]="pac.id">
-              {{ pac.nombre }}
-            </option>
-          </select>
+          <input type="text" [(ngModel)]="appointmentForm.pacienteNombre" required placeholder="Nombre del paciente" name="pacienteNombre">
         </div>
 
         <div class="form-group">
@@ -122,22 +128,29 @@
 
         <div class="form-group">
           <label>Médico *</label>
-          <select [(ngModel)]="appointmentForm.medicoId" required>
-            <option value="">Seleccionar médico...</option>
-            <option *ngFor="let med of medicos" [value]="med.id">
-              {{ med.nombre }}
-            </option>
-          </select>
+          <div class="input-with-button">
+            <input type="text" [(ngModel)]="medicoBusqueda" placeholder="Buscar médico por nombre..." name="medicoBusqueda">
+            <button type="button" class="btn btn--secondary" (click)="buscarMedico()">
+              <i class="fas fa-search"></i>
+              Buscar
+            </button>
+          </div>
+          <div *ngIf="mostrarResultadosMedicos && resultadosMedicos.length > 0" class="search-results">
+            <div *ngFor="let med of resultadosMedicos" class="search-result-item" (click)="seleccionarMedico(med)">
+              {{ med.nombres }}
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
           <label>Técnico *</label>
-          <select [(ngModel)]="appointmentForm.tecnicoId" required>
-            <option value="">Seleccionar técnico...</option>
-            <option *ngFor="let tec of tecnicos" [value]="tec.id">
-              {{ tec.nombre }}
-            </option>
-          </select>
+          <div class="input-with-button">
+            <input type="text" [(ngModel)]="tecnicoBusqueda" placeholder="Buscar técnico por nombre..." name="tecnicoBusqueda">
+            <button type="button" class="btn btn--secondary" (click)="buscarTecnico()">
+              <i class="fas fa-search"></i>
+              Buscar
+            </button>
+          </div>
         </div>
 
         <div class="form-group">
