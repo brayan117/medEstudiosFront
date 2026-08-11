@@ -6,16 +6,17 @@ import { afiliadoService } from '../../../../services/afiliado/afiliado.service'
 import { afiliadoDTO } from '../../../../models/interfaces/afiliado/afiliadoDTO.interface';
 import { medicoService } from '../../../../services/medico/medico.service';
 import { MedicoBusquedaDTO } from '../../../../models/interfaces/medico/medicoBusquedaDTO.interface';
+import { procedimientoService } from '../../../../services/procedimiento/procedimiento.service';
+import { procedimientoBusquedaRequestDTO } from '../../../../models/interfaces/procedimiento/procedimientoBusquedaRequestDTO';
+import { procedimientoBusquedaResponseDTO } from '../../../../models/interfaces/procedimiento/procedimientoBusquedaResponseDTO';
+import { TIPO_ESTUDIO } from '../../../../shared/constants/tipoEstudio.constants';
 
 interface AppointmentForm {
   pacienteId: string;
   pacienteNombre: string;
   estudio: string;
-  sala: string;
   medicoId: string;
   medicoNombre: string;
-  tecnicoId: string;
-  tecnicoNombre: string;
   prioridad: 'normal' | 'urgente';
   notas: string;
 }
@@ -64,6 +65,7 @@ interface DayInfo {
 export class Agenda implements OnInit {
   private afiliadoService = inject(afiliadoService);
   private medicoService = inject(medicoService);
+  private procedimientoService = inject(procedimientoService);
   private cdr = inject(ChangeDetectorRef);
 
   currentWeekStart: Date = new Date();
@@ -79,18 +81,18 @@ export class Agenda implements OnInit {
   documentoBusqueda = '';
   medicoBusqueda = '';
   tecnicoBusqueda = '';
+  tipoEstudioSeleccionado = '';
   resultadosMedicos: MedicoBusquedaDTO[] = [];
   mostrarResultadosMedicos = false;
+  resultadosProcedimientos: procedimientoBusquedaResponseDTO[] = [];
+  mostrarResultadosProcedimientos = false;
 
   appointmentForm: AppointmentForm = {
     pacienteId: '',
     pacienteNombre: '',
     estudio: '',
-    sala: '',
     medicoId: '',
     medicoNombre: '',
-    tecnicoId: '',
-    tecnicoNombre: '',
     prioridad: 'normal',
     notas: ''
   };
@@ -315,19 +317,19 @@ export class Agenda implements OnInit {
       pacienteId: '',
       pacienteNombre: '',
       estudio: '',
-      sala: '',
       medicoId: '',
       medicoNombre: '',
-      tecnicoId: '',
-      tecnicoNombre: '',
       prioridad: 'normal',
       notas: ''
     };
     this.documentoBusqueda = '';
     this.medicoBusqueda = '';
     this.tecnicoBusqueda = '';
+    this.tipoEstudioSeleccionado = '';
     this.resultadosMedicos = [];
     this.mostrarResultadosMedicos = false;
+    this.resultadosProcedimientos = [];
+    this.mostrarResultadosProcedimientos = false;
   }
 
   buscarPaciente() {
@@ -379,22 +381,43 @@ export class Agenda implements OnInit {
     this.mostrarResultadosMedicos = false;
   }
 
-  buscarTecnico() {
-    if (!this.tecnicoBusqueda || this.tecnicoBusqueda.trim() === '') {
+  buscarProcedimientos() {
+    if (!this.tipoEstudioSeleccionado) {
       return;
     }
 
-    // Buscar técnico en la lista mock por nombre (simulación)
-    const tecnicoEncontrado = this.tecnicos.find(t => 
-      t.nombre.toLowerCase().includes(this.tecnicoBusqueda.toLowerCase())
-    );
+    const request: procedimientoBusquedaRequestDTO = {
+      nombre: null,
+      tipo: this.tipoEstudioSeleccionado
+    };
 
-    if (tecnicoEncontrado) {
-      this.appointmentForm.tecnicoId = tecnicoEncontrado.id;
-      this.appointmentForm.tecnicoNombre = tecnicoEncontrado.nombre;
-    } else {
-      alert('No se encontró técnico con ese nombre');
-    }
+    console.log('Buscando procedimientos con request:', request);
+
+    this.procedimientoService.buscarProcedimiento(request).subscribe({
+      next: (procedimientos: procedimientoBusquedaResponseDTO[]) => {
+        console.log('Procedimientos recibidos:', procedimientos);
+        if (procedimientos.length === 0) {
+          alert('No se encontraron procedimientos para este tipo');
+          this.mostrarResultadosProcedimientos = false;
+        } else {
+          this.resultadosProcedimientos = procedimientos;
+          this.mostrarResultadosProcedimientos = true;
+          console.log('Mostrando resultados:', this.mostrarResultadosProcedimientos);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error buscando procedimientos:', err);
+        alert('Error al buscar procedimientos');
+        this.mostrarResultadosProcedimientos = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  seleccionarProcedimiento(procedimiento: procedimientoBusquedaResponseDTO) {
+    this.appointmentForm.estudio = procedimiento.nom_procedimiento;
+    this.mostrarResultadosProcedimientos = false;
   }
 
   submitAppointment(event: Event) {
@@ -406,11 +429,11 @@ export class Agenda implements OnInit {
       pacienteId: this.appointmentForm.pacienteId,
       pacienteNombre: this.appointmentForm.pacienteNombre,
       estudio: this.appointmentForm.estudio,
-      sala: this.appointmentForm.sala,
+      sala: '',
       medicoId: this.appointmentForm.medicoId,
       medicoNombre: this.appointmentForm.medicoNombre,
-      tecnicoId: this.appointmentForm.tecnicoId,
-      tecnicoNombre: this.appointmentForm.tecnicoNombre,
+      tecnicoId: '',
+      tecnicoNombre: '',
       prioridad: this.appointmentForm.prioridad as 'normal' | 'urgente',
       notas: this.appointmentForm.notas
     };
@@ -429,11 +452,8 @@ export class Agenda implements OnInit {
       pacienteId: this.selectedAppointment.pacienteId,
       pacienteNombre: this.selectedAppointment.pacienteNombre,
       estudio: this.selectedAppointment.estudio,
-      sala: this.selectedAppointment.sala,
       medicoId: this.selectedAppointment.medicoId,
       medicoNombre: this.selectedAppointment.medicoNombre,
-      tecnicoId: this.selectedAppointment.tecnicoId,
-      tecnicoNombre: this.selectedAppointment.tecnicoNombre,
       prioridad: this.selectedAppointment.prioridad,
       notas: this.selectedAppointment.notas
     };

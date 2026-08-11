@@ -26,8 +26,7 @@ export class Login {
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
-      password: ['', [Validators.required]],
-      rememberMe: [false]
+      password: ['', [Validators.required]]
     });
   }
 
@@ -57,7 +56,8 @@ export class Login {
         }
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Error al iniciar sesión';
+        console.error('Login error:', err);
+        this.errorMessage = err.error?.message || err.message || 'Error al iniciar sesión';
         this.loading = false;
       }
     });

@@ -112,8 +112,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 45px;
+  height: 60px;
+  min-width: 0;
   position: relative;
+  overflow: hidden;
 }
 
 .calendar-cell:last-child {

@@ -107,23 +107,29 @@
         </div>
 
         <div class="form-group">
-          <label>Tipo de Estudio *</label>
-          <select [(ngModel)]="appointmentForm.estudio" required>
-            <option value="">Seleccionar estudio...</option>
-            <option *ngFor="let est of tiposEstudio" [value]="est">
-              {{ est }}
-            </option>
-          </select>
+          <label>Tipo Estudio *</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="tipoEstudio" [(ngModel)]="tipoEstudioSeleccionado" value="Tomografia" (change)="buscarProcedimientos()">
+              <span>Tomografía</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="tipoEstudio" [(ngModel)]="tipoEstudioSeleccionado" value="Resonancia" (change)="buscarProcedimientos()">
+              <span>Resonancia</span>
+            </label>
+          </div>
         </div>
 
         <div class="form-group">
-          <label>Sala *</label>
-          <select [(ngModel)]="appointmentForm.sala" required>
-            <option value="">Seleccionar sala...</option>
-            <option *ngFor="let sala of salas" [value]="sala">
-              {{ sala }}
-            </option>
-          </select>
+          <label>Estudio *</label>
+          <div class="input-with-button">
+            <input type="text" [(ngModel)]="appointmentForm.estudio" required placeholder="Seleccione un estudio..." name="estudio" readonly>
+          </div>
+          <div *ngIf="mostrarResultadosProcedimientos && resultadosProcedimientos.length > 0" class="search-results">
+            <div *ngFor="let proc of resultadosProcedimientos" class="search-result-item" (click)="seleccionarProcedimiento(proc)">
+              {{ proc.nom_procedimiento }}
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -139,17 +145,6 @@
             <div *ngFor="let med of resultadosMedicos" class="search-result-item" (click)="seleccionarMedico(med)">
               {{ med.nombres }}
             </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Técnico *</label>
-          <div class="input-with-button">
-            <input type="text" [(ngModel)]="tecnicoBusqueda" placeholder="Buscar técnico por nombre..." name="tecnicoBusqueda">
-            <button type="button" class="btn btn--secondary" (click)="buscarTecnico()">
-              <i class="fas fa-search"></i>
-              Buscar
-            </button>
           </div>
         </div>
 
@@ -189,7 +184,7 @@
       <div class="modal-header">
         <div class="modal-header__title">
           <h2>Detalle de Cita</h2>
-          <p>{{ selectedSlotDate | date:'fullDate' }} - {{ selectedSlotHour }}</p>
+          <p>{{ selectedSlotDate | date:'EEEE, d MMMM yyyy' | titlecase }} - {{ selectedSlotHour }}</p>
         </div>
         <button class="btn-icon" (click)="closeDetailModal()">
           <i class="fas fa-times"></i>
@@ -212,10 +207,6 @@
             <span class="detail-value">{{ selectedAppointment.estudio }}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Sala:</span>
-            <span class="detail-value">{{ selectedAppointment.sala }}</span>
-          </div>
-          <div class="detail-row">
             <span class="detail-label">Prioridad:</span>
             <span class="detail-value">
               <span [class]="selectedAppointment.prioridad === 'urgente' ? 'badge badge--danger' : 'badge badge--success'">
@@ -230,10 +221,6 @@
           <div class="detail-row">
             <span class="detail-label">Médico:</span>
             <span class="detail-value">{{ selectedAppointment.medicoNombre }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Técnico:</span>
-            <span class="detail-value">{{ selectedAppointment.tecnicoNombre }}</span>
           </div>
         </div>
 
