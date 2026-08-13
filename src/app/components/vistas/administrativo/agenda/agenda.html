@@ -152,11 +152,11 @@
           <label>Prioridad</label>
           <div class="radio-group">
             <label class="radio-label">
-              <input type="radio" [(ngModel)]="appointmentForm.prioridad" value="normal">
+              <input type="radio" name="prioridad" [(ngModel)]="appointmentForm.prioridad" value="normal" (change)="validarFormulario()">
               <span>Normal</span>
             </label>
             <label class="radio-label">
-              <input type="radio" [(ngModel)]="appointmentForm.prioridad" value="urgente">
+              <input type="radio" name="prioridad" [(ngModel)]="appointmentForm.prioridad" value="urgente" (change)="validarFormulario()">
               <span>Urgente</span>
             </label>
           </div>
@@ -164,14 +164,18 @@
 
         <div class="form-group">
           <label>Notas</label>
-          <textarea [(ngModel)]="appointmentForm.notas" rows="3" placeholder="Notas adicionales..."></textarea>
+          <textarea name="notas" [(ngModel)]="appointmentForm.notas" rows="3" placeholder="Notas adicionales..."></textarea>
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn btn--secondary" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn--primary">
+          <button type="submit" class="btn btn--primary" [disabled]="!formularioValido || agendandoCita">
             <i class="fas fa-check"></i>
-            Agendar
+            <span *ngIf="!agendandoCita">Agendar</span>
+            <span *ngIf="agendandoCita">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Agendando...
+            </span>
           </button>
         </div>
       </form>

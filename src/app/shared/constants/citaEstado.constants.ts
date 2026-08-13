@@ -1,0 +1,8 @@
+export const CITA_ESTADO = {
+  AGENDADO: 1,
+  EN_PROCESO: 2,
+  REALIZADO: 3,
+  INFORMADO: 4,
+  ENTREGADO: 5,
+  CANCELADO: 6
+} as const;

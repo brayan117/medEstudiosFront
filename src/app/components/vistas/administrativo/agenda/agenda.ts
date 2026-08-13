@@ -10,10 +10,15 @@ import { procedimientoService } from '../../../../services/procedimiento/procedi
 import { procedimientoBusquedaRequestDTO } from '../../../../models/interfaces/procedimiento/procedimientoBusquedaRequestDTO';
 import { procedimientoBusquedaResponseDTO } from '../../../../models/interfaces/procedimiento/procedimientoBusquedaResponseDTO';
 import { TIPO_ESTUDIO } from '../../../../shared/constants/tipoEstudio.constants';
+import { CITA_ESTADO } from '../../../../shared/constants/citaEstado.constants';
+import { citasService } from '../../../../services/citas/citas.service';
+import { citaDTO } from '../../../../models/interfaces/citas/citasDTO.interfaces';
+import { finalize, timeout } from 'rxjs';
 
 interface AppointmentForm {
   pacienteId: string;
   pacienteNombre: string;
+  estudioId: number;
   estudio: string;
   medicoId: string;
   medicoNombre: string;
@@ -66,6 +71,7 @@ export class Agenda implements OnInit {
   private afiliadoService = inject(afiliadoService);
   private medicoService = inject(medicoService);
   private procedimientoService = inject(procedimientoService);
+  private citasService = inject(citasService);
   private cdr = inject(ChangeDetectorRef);
 
   currentWeekStart: Date = new Date();
@@ -86,10 +92,13 @@ export class Agenda implements OnInit {
   mostrarResultadosMedicos = false;
   resultadosProcedimientos: procedimientoBusquedaResponseDTO[] = [];
   mostrarResultadosProcedimientos = false;
+  formularioValido = false;
+  agendandoCita = false;
 
   appointmentForm: AppointmentForm = {
     pacienteId: '',
     pacienteNombre: '',
+    estudioId: 0,
     estudio: '',
     medicoId: '',
     medicoNombre: '',
@@ -316,6 +325,7 @@ export class Agenda implements OnInit {
     this.appointmentForm = {
       pacienteId: '',
       pacienteNombre: '',
+      estudioId: 0,
       estudio: '',
       medicoId: '',
       medicoNombre: '',
@@ -330,6 +340,7 @@ export class Agenda implements OnInit {
     this.mostrarResultadosMedicos = false;
     this.resultadosProcedimientos = [];
     this.mostrarResultadosProcedimientos = false;
+    this.formularioValido = false;
   }
 
   buscarPaciente() {
@@ -341,6 +352,8 @@ export class Agenda implements OnInit {
       next: (afiliado: afiliadoDTO) => {
         this.appointmentForm.pacienteId = afiliado.documento;
         this.appointmentForm.pacienteNombre = `${afiliado.nom1} ${afiliado.nom2} ${afiliado.ape1} ${afiliado.ape2}`.trim();
+        this.validarFormulario();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error buscando afiliado:', err);
@@ -374,11 +387,16 @@ export class Agenda implements OnInit {
     });
   }
 
+  seleccionarPaciente() {
+    this.validarFormulario();
+  }
+
   seleccionarMedico(medico: MedicoBusquedaDTO) {
     this.appointmentForm.medicoId = medico.id.toString();
     this.appointmentForm.medicoNombre = medico.nombres;
     this.medicoBusqueda = medico.nombres;
     this.mostrarResultadosMedicos = false;
+    this.validarFormulario();
   }
 
   buscarProcedimientos() {
@@ -416,30 +434,88 @@ export class Agenda implements OnInit {
   }
 
   seleccionarProcedimiento(procedimiento: procedimientoBusquedaResponseDTO) {
+    this.appointmentForm.estudioId = procedimiento.id_codigo;
     this.appointmentForm.estudio = procedimiento.nom_procedimiento;
     this.mostrarResultadosProcedimientos = false;
+    this.validarFormulario();
+  }
+
+  validarFormulario() {
+    this.formularioValido = !!(
+      this.appointmentForm.pacienteId &&
+      this.appointmentForm.estudioId !== 0 &&
+      this.appointmentForm.medicoId &&
+      this.appointmentForm.prioridad
+    );
   }
 
   submitAppointment(event: Event) {
     event.preventDefault();
 
-    const newAppointment: Appointment = {
-      date: this.formatDateKey(this.selectedSlotDate),
-      hour: this.selectedSlotHour,
-      pacienteId: this.appointmentForm.pacienteId,
-      pacienteNombre: this.appointmentForm.pacienteNombre,
-      estudio: this.appointmentForm.estudio,
-      sala: '',
-      medicoId: this.appointmentForm.medicoId,
-      medicoNombre: this.appointmentForm.medicoNombre,
-      tecnicoId: '',
-      tecnicoNombre: '',
-      prioridad: this.appointmentForm.prioridad as 'normal' | 'urgente',
-      notas: this.appointmentForm.notas
+    if (this.agendandoCita) {
+      return;
+    }
+
+    this.agendandoCita = true;
+
+    // Crear fecha programada combinando la fecha seleccionada con la hora
+    const fechaProgramada = new Date(this.selectedSlotDate);
+    const [hours, minutes] = this.selectedSlotHour.split(':');
+    fechaProgramada.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    // Fecha de solicitud es la fecha actual
+    const fechaSolicitud = new Date();
+
+    const cita: citaDTO = {
+      paciente_id: parseInt(this.appointmentForm.pacienteId),
+      medico_solicitante_id: parseInt(this.appointmentForm.medicoId),
+      tipo_estudio_id: this.appointmentForm.estudioId,
+      fecha_solicitud: fechaSolicitud.toISOString(),
+      fecha_programada: fechaProgramada.toISOString(),
+      estado_id: CITA_ESTADO.AGENDADO,
+      prioridad: this.appointmentForm.prioridad.toUpperCase(),
+      notas_procedimiento: this.appointmentForm.notas || ''
     };
 
-    this.appointments.push(newAppointment);
-    this.closeModal();
+    this.citasService.crearCita(cita)
+      .pipe(
+        timeout(30000),
+        finalize(() => {
+          this.agendandoCita = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          console.log('Cita creada exitosamente:', res);
+
+          this.closeModal();
+          this.cdr.detectChanges();
+
+          // Agregar al array local para mostrar en la UI
+          const newAppointment: Appointment = {
+            date: this.formatDateKey(this.selectedSlotDate),
+            hour: this.selectedSlotHour,
+            pacienteId: this.appointmentForm.pacienteId,
+            pacienteNombre: this.appointmentForm.pacienteNombre,
+            estudio: this.appointmentForm.estudio,
+            sala: '',
+            medicoId: this.appointmentForm.medicoId,
+            medicoNombre: this.appointmentForm.medicoNombre,
+            tecnicoId: '',
+            tecnicoNombre: '',
+            prioridad: this.appointmentForm.prioridad as 'normal' | 'urgente',
+            notas: this.appointmentForm.notas
+          };
+
+          this.appointments.push(newAppointment);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error creando cita:', err);
+          alert('Error al agendar la cita. Por favor intente nuevamente.');
+        }
+      });
   }
 
   editAppointment() {
@@ -451,6 +527,7 @@ export class Agenda implements OnInit {
     this.appointmentForm = {
       pacienteId: this.selectedAppointment.pacienteId,
       pacienteNombre: this.selectedAppointment.pacienteNombre,
+      estudioId: 0,
       estudio: this.selectedAppointment.estudio,
       medicoId: this.selectedAppointment.medicoId,
       medicoNombre: this.selectedAppointment.medicoNombre,
