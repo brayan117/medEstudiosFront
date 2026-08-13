@@ -13,6 +13,7 @@ import { TIPO_ESTUDIO } from '../../../../shared/constants/tipoEstudio.constants
 import { CITA_ESTADO } from '../../../../shared/constants/citaEstado.constants';
 import { citasService } from '../../../../services/citas/citas.service';
 import { citaDTO } from '../../../../models/interfaces/citas/citasDTO.interfaces';
+import { citasResponseDTO } from '../../../../models/interfaces/citas/citasResponseDTO.interfaces';
 import { finalize, timeout } from 'rxjs';
 
 interface AppointmentForm {
@@ -136,12 +137,63 @@ export class Agenda implements OnInit {
   ];
 
   ngOnInit() {
-    this.initializeWeek();
+    this.generateWeekDays();
     this.initializeHours();
-    this.loadMockData();
+    this.loadCitas();
   }
 
-  initializeWeek() {
+  loadCitas() {
+    // Calcular rango de la semana actual (lunes a domingo)
+    const startOfWeek = new Date(this.currentWeekStart);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Ajustar para que lunes sea el primer día
+    const monday = new Date(startOfWeek.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+
+    const fechaInicio = monday.toISOString();
+    const fechaFin = sunday.toISOString();
+
+    console.log('Cargando citas desde:', fechaInicio, 'hasta:', fechaFin);
+
+    this.citasService.getCitas(fechaInicio, fechaFin).subscribe({
+      next: (citas) => {
+        console.log('Citas recibidas:', citas);
+        this.mapCitasToAppointments(citas);
+      },
+      error: (err) => {
+        console.error('Error cargando citas:', err);
+      }
+    });
+  }
+
+  mapCitasToAppointments(citas: citasResponseDTO[]) {
+    this.appointments = citas.map(cita => {
+      const fecha = new Date(cita.fecha_programada);
+      const dateKey = this.formatDateKey(fecha);
+      const hour = fecha.toTimeString().slice(0, 5); // HH:MM
+
+      return {
+        date: dateKey,
+        hour: hour,
+        pacienteId: '',
+        pacienteNombre: cita.nombre_paciente,
+        estudio: cita.nombre_estudio,
+        sala: '',
+        medicoId: '',
+        medicoNombre: cita.nombre_medico,
+        tecnicoId: '',
+        tecnicoNombre: '',
+        prioridad: cita.prioridad.toLowerCase() as 'normal' | 'urgente',
+        notas: cita.notas_procedimiento
+      };
+    });
+  }
+
+  generateWeekDays() {
     const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
     const startOfWeek = this.getStartOfWeek(this.currentWeekStart);
     
@@ -252,13 +304,15 @@ export class Agenda implements OnInit {
   previousWeek() {
     this.currentWeekStart = new Date(this.currentWeekStart);
     this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
-    this.initializeWeek();
+    this.generateWeekDays();
+    this.loadCitas();
   }
 
   nextWeek() {
     this.currentWeekStart = new Date(this.currentWeekStart);
     this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
-    this.initializeWeek();
+    this.generateWeekDays();
+    this.loadCitas();
   }
 
   hasAppointment(date: Date, hour: string): boolean {
