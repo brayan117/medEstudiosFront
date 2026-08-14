@@ -28,6 +28,8 @@ interface AppointmentForm {
 }
 
 interface Appointment {
+  idAgenda: number;
+  idEstudio: number;
   date: string;
   hour: string;
   pacienteId: string;
@@ -95,6 +97,7 @@ export class Agenda implements OnInit {
   mostrarResultadosProcedimientos = false;
   formularioValido = false;
   agendandoCita = false;
+  eliminandoCita = false;
 
   appointmentForm: AppointmentForm = {
     pacienteId: '',
@@ -154,8 +157,8 @@ export class Agenda implements OnInit {
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
 
-    const fechaInicio = monday.toISOString();
-    const fechaFin = sunday.toISOString();
+    const fechaInicio = this.formatDateTimeLocal(monday);
+    const fechaFin = this.formatDateTimeLocal(sunday);
 
     console.log('Cargando citas desde:', fechaInicio, 'hasta:', fechaFin);
 
@@ -163,6 +166,7 @@ export class Agenda implements OnInit {
       next: (citas) => {
         console.log('Citas recibidas:', citas);
         this.mapCitasToAppointments(citas);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error cargando citas:', err);
@@ -177,6 +181,8 @@ export class Agenda implements OnInit {
       const hour = fecha.toTimeString().slice(0, 5); // HH:MM
 
       return {
+        idAgenda: cita.id_agenda,
+        idEstudio: cita.id_estudio,
         date: dateKey,
         hour: hour,
         pacienteId: '',
@@ -217,7 +223,7 @@ export class Agenda implements OnInit {
 
   initializeHours() {
     this.hours = [];
-    for (let i = 6; i <= 18; i++) {
+    for (let i = 6; i <= 22; i++) {
       for (let j = 0; j < 60; j += 10) {
         const hour = i < 10 ? `0${i}:${j === 0 ? '00' : j}` : `${i}:${j === 0 ? '00' : j}`;
         this.hours.push(hour);
@@ -252,6 +258,8 @@ export class Agenda implements OnInit {
     const today = new Date();
     this.appointments = [
       {
+        idAgenda: 1,
+        idEstudio: 1,
         date: this.formatDateKey(today),
         hour: '09:00',
         pacienteId: 'PAC-001',
@@ -266,6 +274,8 @@ export class Agenda implements OnInit {
         notas: ''
       },
       {
+        idAgenda: 2,
+        idEstudio: 2,
         date: this.formatDateKey(today),
         hour: '10:30',
         pacienteId: 'PAC-002',
@@ -283,7 +293,18 @@ export class Agenda implements OnInit {
   }
 
   formatDateKey(date: Date): string {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = this.pad(date.getMonth() + 1);
+    const day = this.pad(date.getDate());
+    return `${year}-${month}-${day}`;
+  }
+
+  formatDateTimeLocal(date: Date): string {
+    return `${this.formatDateKey(date)}T${this.pad(date.getHours())}:${this.pad(date.getMinutes())}:${this.pad(date.getSeconds())}`;
+  }
+
+  pad(n: number): string {
+    return n < 10 ? `0${n}` : `${n}`;
   }
 
   formatDate(date: Date): string {
@@ -291,7 +312,12 @@ export class Agenda implements OnInit {
   }
 
   formatHour(hour: string): string {
-    return hour;
+    if (!hour) return '';
+    const [hours, minutes] = hour.split(':').map(Number);
+    if (isNaN(hours) || isNaN(minutes)) return hour;
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const hours12 = hours % 12 === 0 ? 12 : hours % 12;
+    return `${hours12}:${this.pad(minutes)} ${period}`;
   }
 
   getWeekRange(): string {
@@ -342,12 +368,22 @@ export class Agenda implements OnInit {
     this.selectedSlotDate = date;
     this.selectedSlotHour = hour;
     
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const slotDate = new Date(date);
+    slotDate.setHours(0, 0, 0, 0);
+    
     if (this.hasAppointment(date, hour)) {
       // View existing appointment detail
       const dateKey = this.formatDateKey(date);
       this.selectedAppointment = this.appointments.find(app => app.date === dateKey && app.hour === hour) || null;
       this.showDetailModal = true;
     } else {
+      // Check if date is in the past
+      if (slotDate < today) {
+        alert('No se pueden agendar citas en fechas anteriores a hoy');
+        return;
+      }
       // Open new appointment modal
       this.resetForm();
       this.showModal = true;
@@ -524,8 +560,8 @@ export class Agenda implements OnInit {
       paciente_id: parseInt(this.appointmentForm.pacienteId),
       medico_solicitante_id: parseInt(this.appointmentForm.medicoId),
       tipo_estudio_id: this.appointmentForm.estudioId,
-      fecha_solicitud: fechaSolicitud.toISOString(),
-      fecha_programada: fechaProgramada.toISOString(),
+      fecha_solicitud: this.formatDateTimeLocal(fechaSolicitud),
+      fecha_programada: this.formatDateTimeLocal(fechaProgramada),
       estado_id: CITA_ESTADO.AGENDADO,
       prioridad: this.appointmentForm.prioridad.toUpperCase(),
       notas_procedimiento: this.appointmentForm.notas || ''
@@ -546,24 +582,7 @@ export class Agenda implements OnInit {
           this.closeModal();
           this.cdr.detectChanges();
 
-          // Agregar al array local para mostrar en la UI
-          const newAppointment: Appointment = {
-            date: this.formatDateKey(this.selectedSlotDate),
-            hour: this.selectedSlotHour,
-            pacienteId: this.appointmentForm.pacienteId,
-            pacienteNombre: this.appointmentForm.pacienteNombre,
-            estudio: this.appointmentForm.estudio,
-            sala: '',
-            medicoId: this.appointmentForm.medicoId,
-            medicoNombre: this.appointmentForm.medicoNombre,
-            tecnicoId: '',
-            tecnicoNombre: '',
-            prioridad: this.appointmentForm.prioridad as 'normal' | 'urgente',
-            notas: this.appointmentForm.notas
-          };
-
-          this.appointments.push(newAppointment);
-          this.cdr.detectChanges();
+          this.loadCitas();
         },
         error: (err) => {
           console.error('Error creando cita:', err);
@@ -574,6 +593,17 @@ export class Agenda implements OnInit {
 
   editAppointment() {
     if (!this.selectedAppointment) return;
+
+    // Check if appointment date is in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const appointmentDate = new Date(this.selectedSlotDate);
+    appointmentDate.setHours(0, 0, 0, 0);
+    
+    if (appointmentDate < today) {
+      alert('No se pueden editar citas en fechas anteriores a hoy');
+      return;
+    }
 
     this.closeDetailModal();
     
@@ -594,12 +624,46 @@ export class Agenda implements OnInit {
 
   deleteAppointment() {
     if (!this.selectedAppointment) return;
+    if (this.eliminandoCita) return;
 
-    const dateKey = this.formatDateKey(this.selectedSlotDate);
-    this.appointments = this.appointments.filter(
-      app => !(app.date === dateKey && app.hour === this.selectedSlotHour)
-    );
-    
-    this.closeDetailModal();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const appointmentDate = new Date(this.selectedSlotDate);
+    appointmentDate.setHours(0, 0, 0, 0);
+
+    if (appointmentDate < today) {
+      alert('No se pueden eliminar citas en fechas anteriores a hoy');
+      return;
+    }
+
+    const idAgenda = this.selectedAppointment.idAgenda;
+    const idEstudio = this.selectedAppointment.idEstudio;
+
+    if (!idAgenda || !idEstudio) {
+      alert('No se encontraron los datos de la cita para eliminar. Intente recargar la agenda.');
+      return;
+    }
+
+    this.eliminandoCita = true;
+
+    this.citasService.deleteCita(idAgenda, idEstudio)
+      .pipe(
+        timeout(30000),
+        finalize(() => {
+          this.eliminandoCita = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          console.log('Cita eliminada exitosamente:', idAgenda, idEstudio);
+          this.closeDetailModal();
+          this.loadCitas();
+        },
+        error: (err) => {
+          console.error('Error eliminando cita:', err);
+          alert('Error al eliminar la cita. Por favor intente nuevamente.');
+        }
+      });
   }
 }

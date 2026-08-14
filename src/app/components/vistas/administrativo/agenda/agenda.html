@@ -48,7 +48,7 @@
           (click)="openSlotModal(day.date, hour)"
         >
           <div *ngIf="hasAppointment(day.date, hour)" class="appointment-preview">
-            <div class="appointment-preview__time">{{ hour }}</div>
+            <div class="appointment-preview__time">{{ formatHour(hour) }}</div>
             <div class="appointment-preview__patient">{{ getAppointmentPatient(day.date, hour) }}</div>
             <div class="appointment-preview__study">{{ getAppointmentStudy(day.date, hour) }}</div>
           </div>
@@ -82,7 +82,7 @@
       <div class="modal-header">
         <div class="modal-header__title">
           <h2>Agendar Cita</h2>
-          <p>{{ selectedSlotDate | date:'fullDate' }} - {{ selectedSlotHour }}</p>
+          <p>{{ selectedSlotDate | date:'fullDate' }} - {{ formatHour(selectedSlotHour) }}</p>
         </div>
         <button class="btn-icon" (click)="closeModal()">
           <i class="fas fa-times"></i>
@@ -188,7 +188,7 @@
       <div class="modal-header">
         <div class="modal-header__title">
           <h2>Detalle de Cita</h2>
-          <p>{{ selectedSlotDate | date:'EEEE, d MMMM yyyy' | titlecase }} - {{ selectedSlotHour }}</p>
+          <p>{{ selectedSlotDate | date:'EEEE, d MMMM yyyy' | titlecase }} - {{ formatHour(selectedSlotHour) }}</p>
         </div>
         <button class="btn-icon" (click)="closeDetailModal()">
           <i class="fas fa-times"></i>
@@ -237,9 +237,13 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn--secondary" (click)="closeDetailModal()">Cerrar</button>
-          <button type="button" class="btn btn--danger" (click)="deleteAppointment()">
+          <button type="button" class="btn btn--danger" (click)="deleteAppointment()" [disabled]="eliminandoCita">
             <i class="fas fa-trash"></i>
-            Eliminar
+            <span *ngIf="!eliminandoCita">Eliminar</span>
+            <span *ngIf="eliminandoCita">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Eliminando...
+            </span>
           </button>
           <button type="button" class="btn btn--primary" (click)="editAppointment()">
             <i class="fas fa-edit"></i>

@@ -25,4 +25,8 @@ export class citasService {
         });
     }
 
+    deleteCita(idAgenda: number, idEstudio: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${idAgenda}/estudio/${idEstudio}`);
+    }
+
 }
