@@ -1,0 +1,68 @@
+<app-layout>
+  <div class="lectura-container" [class.fullscreen-mode]="isFullscreen">
+    <div class="header" *ngIf="!isFullscreen">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Volver
+      </button>
+      <h1>Lectura de Estudio</h1>
+      <div class="header-actions">
+        <button class="btn btn--secondary" (click)="toggleFullscreen()">
+          <i class="fas fa-expand"></i>
+          Pantalla completa
+        </button>
+        <button class="btn btn--primary" (click)="goToDiagnostico()">
+          <i class="fas fa-stethoscope"></i>
+          Diagnosticar
+        </button>
+      </div>
+    </div>
+
+    <!-- Fullscreen controls overlay -->
+    <div class="fullscreen-controls" *ngIf="isFullscreen">
+      <button class="btn btn--secondary" (click)="toggleFullscreen()">
+        <i class="fas fa-compress"></i>
+        Salir de pantalla completa
+      </button>
+      <button class="btn btn--primary" (click)="goToDiagnostico()">
+        <i class="fas fa-stethoscope"></i>
+        Diagnosticar
+      </button>
+    </div>
+
+    <div class="content" *ngIf="study">
+      <!-- Patient Info Summary -->
+      <div class="patient-summary" *ngIf="!isFullscreen">
+        <div class="summary-item">
+          <span class="summary-label">Paciente:</span>
+          <span class="summary-value">{{ study.patientName }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Estudio:</span>
+          <span class="summary-value">{{ getStudyTypeLabel(study.studyType) }} - {{ study.studyName }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Fecha/Hora:</span>
+          <span class="summary-value">{{ study.dateTime }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Técnico:</span>
+          <span class="summary-value">{{ study.technician }}</span>
+        </div>
+      </div>
+
+      <!-- DICOM Image Viewer -->
+      <div class="dicom-viewer" [class.fullscreen]="isFullscreen">
+        <div class="dicom-placeholder">
+          <div class="placeholder-icon">
+            <i class="fas fa-image"></i>
+          </div>
+          <h3 class="placeholder-title">Visor DICOM</h3>
+          <p class="placeholder-text">Espacio para visualizar imagen DICOM del estudio</p>
+          <p class="placeholder-info">ID del estudio: {{ study.id }}</p>
+          <p class="placeholder-info">Tipo: {{ study.studyType }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

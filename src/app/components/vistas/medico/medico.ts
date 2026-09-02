@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Layout } from '../../../shared/layout/layout';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { LecturaService } from '../../../services/lectura/lectura.service';
 
 interface Study {
   id: number;
@@ -24,6 +26,9 @@ interface Study {
   styleUrl: './medico.css',
 })
 export class Medico {
+  private router = inject(Router);
+  private lecturaService = inject(LecturaService);
+  
   // Stats
   waitingStudies = 15;
   inProgressStudies = 8;
@@ -125,7 +130,8 @@ export class Medico {
   }
 
   readStudy(study: Study) {
-    console.log('Leer estudio:', study);
+    this.lecturaService.setStudy(study);
+    this.router.navigate(['/medico/lectura']);
   }
 
   getStatusLabel(status: string): string {

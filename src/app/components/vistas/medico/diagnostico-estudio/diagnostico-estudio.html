@@ -1,0 +1,94 @@
+<app-layout>
+  <div class="diagnostico-container">
+    <div class="header">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Volver
+      </button>
+      <h1>Diagnóstico de Estudio</h1>
+    </div>
+
+    <div class="content" *ngIf="study">
+      <!-- Patient Info Summary -->
+      <div class="patient-summary">
+        <div class="summary-item">
+          <span class="summary-label">Paciente:</span>
+          <span class="summary-value">{{ study.patientName }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Estudio:</span>
+          <span class="summary-value">{{ getStudyTypeLabel(study.studyType) }} - {{ study.studyName }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Fecha/Hora:</span>
+          <span class="summary-value">{{ study.dateTime }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Técnico:</span>
+          <span class="summary-value">{{ study.technician }}</span>
+        </div>
+      </div>
+
+      <form (ngSubmit)="submitDiagnostico()">
+        <!-- Hallazgos -->
+        <div class="form-section">
+          <h3 class="section-title">Hallazgos</h3>
+          <div class="form-group">
+            <label class="form-label">Descripción de hallazgos</label>
+            <textarea class="form-textarea" [(ngModel)]="diagnosticoForm.hallazgos" name="hallazgos" rows="6" placeholder="Describa los hallazgos observados en el estudio..."></textarea>
+          </div>
+        </div>
+
+        <!-- Impresión Diagnóstica -->
+        <div class="form-section">
+          <h3 class="section-title">Impresión Diagnóstica</h3>
+          <div class="form-group">
+            <label class="form-label">Diagnóstico principal</label>
+            <textarea class="form-textarea" [(ngModel)]="diagnosticoForm.impresionDiagnostica" name="impresionDiagnostica" rows="4" placeholder="Escriba el diagnóstico principal basado en los hallazgos..."></textarea>
+          </div>
+        </div>
+
+        <!-- Conclusión -->
+        <div class="form-section">
+          <h3 class="section-title">Conclusión</h3>
+          <div class="form-group">
+            <label class="form-label">Conclusión del estudio</label>
+            <textarea class="form-textarea" [(ngModel)]="diagnosticoForm.conclusion" name="conclusion" rows="4" placeholder="Resumen y conclusión del estudio..."></textarea>
+          </div>
+        </div>
+
+        <!-- Recomendaciones -->
+        <div class="form-section">
+          <h3 class="section-title">Recomendaciones</h3>
+          <div class="form-group">
+            <label class="form-label">Recomendaciones clínicas</label>
+            <textarea class="form-textarea" [(ngModel)]="diagnosticoForm.recomendaciones" name="recomendaciones" rows="4" placeholder="Recomendaciones para el tratamiento o seguimiento..."></textarea>
+          </div>
+        </div>
+
+        <!-- Información del Médico -->
+        <div class="form-section">
+          <h3 class="section-title">Información del Médico</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Médico responsable</label>
+              <input type="text" class="form-input" [(ngModel)]="diagnosticoForm.medicoResponsable" name="medicoResponsable" placeholder="Nombre del médico radiólogo">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Fecha del diagnóstico</label>
+              <input type="date" class="form-input" [(ngModel)]="diagnosticoForm.fechaDiagnostico" name="fechaDiagnostico">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" (click)="goBack()">Cancelar</button>
+          <button type="submit" class="btn btn--primary">
+            <i class="fas fa-save"></i>
+            Guardar Diagnóstico
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</app-layout>

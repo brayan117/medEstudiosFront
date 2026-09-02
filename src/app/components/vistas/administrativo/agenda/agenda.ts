@@ -150,15 +150,16 @@ export class Agenda implements OnInit {
     const startOfWeek = new Date(this.currentWeekStart);
     const day = startOfWeek.getDay();
     const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Ajustar para que lunes sea el primer día
-    const monday = new Date(startOfWeek.setDate(diff));
+    const monday = new Date(startOfWeek);
+    monday.setDate(diff);
     monday.setHours(0, 0, 0, 0);
 
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
 
-    const fechaInicio = this.formatDateTimeLocal(monday);
-    const fechaFin = this.formatDateTimeLocal(sunday);
+    const fechaInicio = monday.toISOString();
+    const fechaFin = sunday.toISOString();
 
     console.log('Cargando citas desde:', fechaInicio, 'hasta:', fechaFin);
 

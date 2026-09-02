@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Layout } from '../../../shared/layout/layout';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { PreparacionService } from '../../../services/preparacion/preparacion.service';
 
 interface Patient {
   id: number;
@@ -23,6 +25,8 @@ interface Patient {
   styleUrl: './tecnico.css',
 })
 export class Tecnico {
+  private router = inject(Router);
+  private preparacionService = inject(PreparacionService);
   // Stats
   assignedStudies = 12;
   waitingStudies = 8;
@@ -113,7 +117,8 @@ export class Tecnico {
   }
 
   prepareStudy(patient: Patient) {
-    console.log('Preparar estudio:', patient);
+    this.preparacionService.setPatient(patient);
+    this.router.navigate(['/tecnico/preparacion']);
   }
 
   getStatusLabel(status: string): string {

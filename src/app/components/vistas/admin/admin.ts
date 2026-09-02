@@ -8,6 +8,7 @@ import { usuarioService } from '../../../services/usuario/usuario.service';
 import { requestActualizarEstadoDTO } from '../../../models/interfaces/usuario/requestActualizarEstadoDTO.interface';
 import { ROLES } from '../../../shared/constantes/roles.constants';
 import { crearUsuarioDTO } from '../../../models/interfaces/usuario/crearUsuarioDTO.interface';
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-admin',
   imports: [Layout, CommonModule, FormsModule, ReactiveFormsModule],
@@ -154,26 +155,37 @@ export class Admin implements OnInit {
   }
 
   deleteUser(user: usuarioDTO) {
-    if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.username}? Esta acción no se puede deshacer.`)) {
-      this.usuarioService.eliminarUsuario(user.id).subscribe({
-        next: (response) => {
-          console.log('Usuario eliminado:', response);
-          this.successMessage = `Usuario ${user.username} eliminado correctamente`;
-          this.error = null;
-          this.loadUsers();
-          setTimeout(() => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Estás seguro de que deseas eliminar al usuario ${user.username}? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#64748B'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.usuarioService.eliminarUsuario(user.id).subscribe({
+          next: (response) => {
+            console.log('Usuario eliminado:', response);
+            this.successMessage = `Usuario ${user.username} eliminado correctamente`;
+            this.error = null;
+            this.loadUsers();
+            setTimeout(() => {
+              this.successMessage = null;
+              this.cdr.detectChanges();
+            }, 3000);
+          },
+          error: (err) => {
+            console.error('Error eliminando usuario:', err);
+            this.error = 'Error al eliminar el usuario';
             this.successMessage = null;
             this.cdr.detectChanges();
-          }, 3000);
-        },
-        error: (err) => {
-          console.error('Error eliminando usuario:', err);
-          this.error = 'Error al eliminar el usuario';
-          this.successMessage = null;
-          this.cdr.detectChanges();
-        }
-      });
-    }
+          }
+        });
+      }
+    });
   }
 
   toggleUserStatus(user: usuarioDTO) {

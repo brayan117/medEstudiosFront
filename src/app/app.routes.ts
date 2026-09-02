@@ -22,6 +22,16 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'medico/lectura',
+    loadComponent: () => import('./components/vistas/medico/lectura-estudio/lectura-estudio').then(m => m.LecturaEstudio),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'medico/diagnostico',
+    loadComponent: () => import('./components/vistas/medico/diagnostico-estudio/diagnostico-estudio').then(m => m.DiagnosticoEstudio),
+    canActivate: [authGuard]
+  },
+  {
     path: 'usuario',
     loadComponent: () => import('./components/vistas/usuario/usuario').then(m => m.Usuario),
     canActivate: [authGuard]
@@ -29,6 +39,11 @@ export const routes: Routes = [
   {
     path: 'tecnico',
     loadComponent: () => import('./components/vistas/tecnico/tecnico').then(m => m.Tecnico),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tecnico/preparacion',
+    loadComponent: () => import('./components/vistas/tecnico/preparacion-estudio/preparacion-estudio').then(m => m.PreparacionEstudio),
     canActivate: [authGuard]
   },
   {
