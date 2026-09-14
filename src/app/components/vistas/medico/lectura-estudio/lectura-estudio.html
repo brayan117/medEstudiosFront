@@ -53,15 +53,7 @@
 
       <!-- DICOM Image Viewer -->
       <div class="dicom-viewer" [class.fullscreen]="isFullscreen">
-        <div class="dicom-placeholder">
-          <div class="placeholder-icon">
-            <i class="fas fa-image"></i>
-          </div>
-          <h3 class="placeholder-title">Visor DICOM</h3>
-          <p class="placeholder-text">Espacio para visualizar imagen DICOM del estudio</p>
-          <p class="placeholder-info">ID del estudio: {{ study.id }}</p>
-          <p class="placeholder-info">Tipo: {{ study.studyType }}</p>
-        </div>
+        <app-dicom-viewer></app-dicom-viewer>
       </div>
     </div>
   </div>

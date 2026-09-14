@@ -10,12 +10,6 @@
   },
   "private": true,
   "packageManager": "npm@11.12.1",
-  "browser": {
-    "fs": false,
-    "path": "path-browserify",
-    "url": false,
-    "events": "events"
-  },
   "dependencies": {
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
@@ -29,12 +23,9 @@
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
     "bootstrap": "^5.3.8",
-    "events": "^3.3.0",
-    "path-browserify": "^1.0.1",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.26.25",
-    "tslib": "^2.3.0",
-    "zone.js": "^0.16.3"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@angular/build": "^21.2.9",

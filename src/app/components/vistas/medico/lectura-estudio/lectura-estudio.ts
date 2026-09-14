@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Layout } from '../../../../shared/layout/layout';
 import { LecturaService } from '../../../../services/lectura/lectura.service';
 import { DiagnosticoService } from '../../../../services/diagnostico/diagnostico.service';
+import { DicomViewer } from '../../../../components/dicom-viewer/dicom-viewer';
 
 interface Study {
   id: number;
@@ -21,7 +22,7 @@ interface Study {
 
 @Component({
   selector: 'app-lectura-estudio',
-  imports: [CommonModule, Layout],
+  imports: [CommonModule, Layout, DicomViewer],
   templateUrl: './lectura-estudio.html',
   styleUrl: './lectura-estudio.css',
 })

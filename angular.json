@@ -23,11 +23,31 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "publicdicom"
               }
             ],
             "styles": [
               "src/styles.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "@cornerstonejs/core",
+              "@cornerstonejs/dicom-image-loader",
+              "@cornerstonejs/tools",
+              "@cornerstonejs/codec-charls",
+              "@cornerstonejs/codec-libjpeg-turbo-8bit",
+              "@cornerstonejs/codec-openjpeg",
+              "@cornerstonejs/codec-openjph",
+              "dicom-parser",
+              "jpeg-lossless-decoder-js",
+              "xmlbuilder2",
+              "dicom-data-dictionary"
+            ],
+            "polyfills": [
+              "zone.js"
             ]
           },
           "configurations": {
@@ -35,13 +55,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "750kB",
+                  "maximumError": "1.5MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "20kB",
+                  "maximumError": "30kB"
                 }
               ],
               "outputHashing": "all"
@@ -56,6 +76,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "prebundle": false
+          },
           "configurations": {
             "production": {
               "buildTarget": "medEstudios:build:production"
