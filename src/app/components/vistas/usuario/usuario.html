@@ -1,4 +1,86 @@
 <app-layout>
-  <h1>Usuario</h1>
-  <p>Bienvenido al panel de usuario de MedEstudios</p>
+  <div class="usuario-dashboard">
+    <div class="dashboard-header">
+      <h1>Panel de Usuario</h1>
+      <p class="dashboard-subtitle">Bienvenido a su portal de salud MedEstudios</p>
+    </div>
+
+    <div class="dashboard-content" *ngIf="!showDicomViewer">
+      <!-- Studies Section -->
+      <div class="dashboard-section">
+        <div class="section-header">
+          <h2>Mis Estudios</h2>
+          <span class="study-count">{{ studies.length }} estudios</span>
+        </div>
+        <div class="studies-grid">
+          <div
+            *ngFor="let study of studies"
+            class="study-card"
+            (click)="viewStudyDetails(study)">
+            <div class="study-header">
+              <span class="study-type">{{ getStudyTypeLabel(study.studyType) }}</span>
+              <span class="study-status" [ngClass]="getStatusClass(study.status)">
+                {{ getStatusLabel(study.status) }}
+              </span>
+            </div>
+            <h3 class="study-name">{{ study.studyName }}</h3>
+            <div class="study-details">
+              <span class="study-date">{{ study.dateTime }}</span>
+              <span class="study-doctor">{{ study.doctor }}</span>
+            </div>
+            <div class="study-result" *ngIf="study.result">
+              <span class="result-label">Resultado:</span>
+              <span class="result-value">{{ study.result }}</span>
+            </div>
+            <button class="view-button" (click)="viewStudyDetails(study); $event.stopPropagation()">
+              Ver Detalles
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clinical History Section -->
+      <div class="dashboard-section">
+        <div class="section-header">
+          <h2>Historia Clínica</h2>
+          <span class="history-count">{{ clinicalHistory.length }} registros</span>
+        </div>
+        <div class="history-list">
+          <div *ngFor="let history of clinicalHistory" class="history-item">
+            <div class="history-header">
+              <span class="history-date">{{ history.date }}</span>
+              <span class="history-doctor">{{ history.doctor }}</span>
+            </div>
+            <div class="history-content">
+              <div class="history-diagnosis">
+                <span class="diagnosis-label">Diagnóstico:</span>
+                <span class="diagnosis-value">{{ history.diagnosis }}</span>
+              </div>
+              <div class="history-treatment">
+                <span class="treatment-label">Tratamiento:</span>
+                <span class="treatment-value">{{ history.treatment }}</span>
+              </div>
+              <div class="history-notes" *ngIf="history.notes">
+                <span class="notes-label">Notas:</span>
+                <span class="notes-value">{{ history.notes }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DICOM Viewer Modal -->
+    <div class="dicom-modal" *ngIf="showDicomViewer">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 *ngIf="selectedStudy">{{ selectedStudy.studyName }}</h2>
+          <button class="close-button" (click)="closeDicomViewer()">✕</button>
+        </div>
+        <div class="modal-body">
+          <app-dicom-viewer></app-dicom-viewer>
+        </div>
+      </div>
+    </div>
+  </div>
 </app-layout>
