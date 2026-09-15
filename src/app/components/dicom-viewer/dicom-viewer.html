@@ -1,9 +1,49 @@
 <div class="dicom-viewer">
   <div class="viewer-header">
     <h2>Visor DICOM</h2>
+    <div class="image-info">
+      <span>Imagen {{ currentImageIndex + 1 }} de {{ dicomFileNames.length }}</span>
+    </div>
   </div>
   <div
     #dicomElement
     class="dicom-viewport">
+  </div>
+  <div class="viewer-controls">
+    <div class="navigation-controls">
+      <button
+        (click)="previousImage()"
+        [disabled]="currentImageIndex === 0"
+        class="control-button">
+        ← Anterior
+      </button>
+      <button
+        (click)="nextImage()"
+        [disabled]="currentImageIndex === dicomFileNames.length - 1"
+        class="control-button">
+        Siguiente →
+      </button>
+    </div>
+    <div class="window-level-controls">
+      <div class="wl-info">
+        <span class="wl-label">W:</span>
+        <span class="wl-value">{{ windowWidth }}</span>
+        <span class="wl-label">L:</span>
+        <span class="wl-value">{{ windowCenter }}</span>
+      </div>
+      <div class="wl-buttons">
+        <button (click)="increaseWindowWidth()" class="wl-button" title="Aumentar Window Width (W)">W+</button>
+        <button (click)="decreaseWindowWidth()" class="wl-button" title="Disminuir Window Width (W)">W-</button>
+        <button (click)="increaseWindowCenter()" class="wl-button" title="Aumentar Window Center (L)">L+</button>
+        <button (click)="decreaseWindowCenter()" class="wl-button" title="Disminuir Window Center (L)">L-</button>
+        <button (click)="resetWindowLevel()" class="wl-button wl-reset" title="Reset Window/Level (R)">Reset</button>
+      </div>
+    </div>
+    <div class="ct-presets">
+      <button (click)="applyCtPreset('lung')" class="preset-button" title="Lung Window">Lung</button>
+      <button (click)="applyCtPreset('bone')" class="preset-button" title="Bone Window">Bone</button>
+      <button (click)="applyCtPreset('softTissue')" class="preset-button" title="Soft Tissue Window">Soft Tissue</button>
+      <button (click)="applyCtPreset('brain')" class="preset-button" title="Brain Window">Brain</button>
+    </div>
   </div>
 </div>

@@ -140,8 +140,8 @@
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color-light);
-  height: 600px;
-  min-height: 600px;
+  height: 750px;
+  min-height: 750px;
   display: flex;
   flex-direction: column;
   padding: 0;
